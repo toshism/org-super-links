@@ -40,7 +40,7 @@ created using that string.  For example LINKS.  If nil backlinks will
 just be inserted under the heading.")
 
 (defvar sl-backlink-entry-format "[%s] <- [[%s][%s]]"
-  "This is a string passed to format.
+  "This is a string passed to `format`.
 The substitution order being time, link, description.  If
 `sl-backlink-prefix` is a string it will be inserted before this.  I
 may refactor this to be a format function instead.")
