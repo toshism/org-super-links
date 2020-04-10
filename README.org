@@ -1,0 +1,3 @@
+Package to create links with auto backlinks
+
+Still fleshing out this idea, but I think I like it.
