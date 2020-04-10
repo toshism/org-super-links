@@ -89,7 +89,7 @@ be used instead of the default value."
 		    desc))
     (org-indent-region beg (point))))
 
-(defun sl-insert-link (buffer pos)
+(defun sl--insert-link (buffer pos)
   "Insert link to BUFFER POS at current point, and create backlink to here.
 Only create backlinks in files in `org-mode`, otherwise just act like a
 normal link."
@@ -104,39 +104,45 @@ normal link."
   (org-insert-last-stored-link 1))
 
 ;;;###autoload
-(defun sl-point-to-register ()
-  "Store a point to the register for use in `sl-link-from-register`.
-ARG and PRED are unused here but come form `org-capture`."
+(defun sl-store-link ()
+  "Store a point to the register for use in `sl-insert-link`.
+This is primarily intended to be called before `org-capture`, but
+could possibly even be used to replace `org-store-link` IF
+`sl-insert-link` is used to replace `org-insert-link`.  This
+has not been thoroughly tested outside of links to/form org files."
   (interactive)
   ;; we probably don't want to link to buffers not visiting a file?
   ;; definitely not if capture is called through org-protocol for example.
-  (when (buffer-file-name (current-buffer))
-    (point-to-register 'sl-link)))
+  (if (buffer-file-name (current-buffer))
+      (progn
+	(point-to-register 'sl-link)
+	(message "Link copied"))
+    (message "No method for storing a link to this buffer.")))
 
 ;; not sure if this should be autoloaded or left to config?
 ;;;###autoload
-(advice-add 'org-capture :before 'sl-point-to-register)
+(advice-add 'org-capture :before 'sl-store-link)
 
 (defun sl-insert-link-action (candidate)
-  "Wrapper for sl-insert-link for helm/rifle integration.
+  "Wrapper for `sl--insert-link` for helm/rifle integration.
 CANDIDATE is a helm candidate."
   (-let (((buffer . pos) candidate))
-    (sl-insert-link buffer pos)))
+    (sl--insert-link buffer pos)))
 
 ;; not sure if this should be autoloaded or left to config?
 ;;;###autoload
-(add-to-list 'helm-org-rifle-actions '("super-link" . sl-insert-link-action) t)
+(add-to-list 'helm-org-rifle-actions '("Super Link" . sl-insert-link-action) t)
 
 ;;;###autoload
-(defun sl-link-from-register ()
-  "Insert a super link for the register."
+(defun sl-insert-link ()
+  "Insert a super link from the register."
   (interactive)
   (let* ((marker (get-register 'sl-link))
 	 (buffer (if marker (marker-buffer marker) nil))
 	 (pos (if marker (marker-position marker) nil)))
     (if (and buffer pos)
 	(progn
-	  (sl-insert-link buffer pos)
+	  (sl--insert-link buffer pos)
 	  (set-register 'sl-link nil))
       (message "No link to insert!"))))
 
