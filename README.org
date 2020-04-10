@@ -31,7 +31,7 @@ This has a link pointing to the heading above
 
 * Installation
 
-This needs better instructions, but here's something basic at least. There is a dependency on =helm-org-rifle=.
+This needs better instructions, but here's something basic at least. There is a dependency on [[https://github.com/alphapapa/org-rifle][helm-org-rifle]].
 
 This isn't on melpa, but using quelpa makes it easy. Example configuration:
 #+begin_src elisp
