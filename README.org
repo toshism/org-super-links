@@ -8,6 +8,7 @@ This is still super alpha and I'm still kind of fleshing out the idea, but I thi
 
 * Super basic example
 
+View the org source to get an idea of how this looks.
 #+begin_quote
 * TODO Test heading target
   :PROPERTIES:
