@@ -43,6 +43,28 @@ This isn't on melpa, but using quelpa makes it easy. Example configuration:
 
 #+end_src
 
+* Usage
+
+There are a few different possible use cases.
+
+** Org link replacement
+
+Instead of calling =org-store-link= call =sl-store-link=. Then to insert the link instead of =org-insert-link= call =sl-insert-link=. That will insert a link as normal while also adding a backlink at the target of the link. This should work the same as regular org links, with the benefit of adding the backlink.
+
+** sl-link
+
+To create a link a link at point call =sl-link=. That will bring up helm-org-rifle and allow you to select the target. Once selected a link will be inserted at point, and a backlink added to target.
+
+** helm-org-rifle action
+
+There is also a =helm-org-rifle= action. To use this method, with the point at the place you would like the link, call =helm-org-rifle=. Select the target of the link and from the actions menu choose =Super Link=. A link pointing to the selected candidate will be created at point, and a backlink will be added to the target.
+
+** capture template
+
+Whenever =org-capture= is called a link to the current point is automatically stored. To insert this link simply call =sl-insert-link=. The backlink will be created automatically as usual.
+
+* Configuration
+
 There are currently three configurable options. I hope to add more in the future. Fair warning, I've really only tested much with the defaults (and even that is minimal).
 
 ** sl-backlink-into-drawer
@@ -70,26 +92,6 @@ Default: =nil=
 Prefix string to insert before the result of =sl-backlink-entry-format=.
 
 If you set =sl-backlink-into-drawer= to =nil= for some crazy reason, then you may want to set this to something.
-
-* Usage
-
-There are a few different possible use cases.
-
-** Org link replacement
-
-Instead of calling =org-store-link= call =sl-store-link=. Then to insert the link instead of =org-insert-link= call =sl-insert-link=. That will insert a link as normal while also adding a backlink at the target of the link. This should work the same as regular org links, with the benefit of adding the backlink.
-
-** sl-link
-
-To create a link a link at point call =sl-link=. That will bring up helm-org-rifle and allow you to select the target. Once selected a link will be inserted at point, and a backlink added to target.
-
-** helm-org-rifle action
-
-There is also a =helm-org-rifle= action. To use this method, with the point at the place you would like the link, call =helm-org-rifle=. Select the target of the link and from the actions menu choose =Super Link=. A link pointing to the selected candidate will be created at point, and a backlink will be added to the target.
-
-** capture template
-
-Whenever =org-capture= is called a link to the current point is automatically stored. To insert this link simply call =sl-insert-link=. The backlink will be created automatically as usual.
 
 * Notes
 
