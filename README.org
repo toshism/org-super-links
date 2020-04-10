@@ -1,3 +1,101 @@
-Package to create links with auto backlinks
+#+TITLE: org-super-links
 
-Still fleshing out this idea, but I think I like it.
+Create links with auto backlinks is the general idea.
+
+I'm trying to keep this as flexible as possible. There are a few different ways to use this to support different use cases and workflows. See Usage for a more detailed explanation.
+
+This is still super alpha and I'm still kind of fleshing out the idea, but I think I like it.
+
+* Super basic example
+
+#+begin_quote
+* TODO Test heading target
+  :PROPERTIES:
+  :ID:       02a5da87-46e5-4ae0-85c1-ee63a570270a
+  :END:
+  :BACKLINKS:
+  [2020-04-11 Sat 00:26] <- [[id:3835d3d0-931a-4a45-a015-a3d6a0baa99a][This has a link]]
+  :END:
+
+This has a backlink as you can see from the BACKLINKS drawer above.
+
+* TODO This has a link
+  :PROPERTIES:
+  :ID:       3835d3d0-931a-4a45-a015-a3d6a0baa99a
+  :END:
+This has a link pointing to the heading above
+
+[[id:02a5da87-46e5-4ae0-85c1-ee63a570270a][Test heading target]]
+#+end_quote
+
+* Installation
+
+This needs better instructions, but here's something basic at least. There is a dependency on =helm-org-rifle=.
+
+This isn't on melpa, but using quelpa makes it easy. Example configuration:
+#+begin_src elisp
+    (use-package org-super-links
+      :quelpa (org-super-links :fetcher file :path "~/.emacs/elisp/org-super-links/org-super-links.el")
+      :bind (("C-c s s" . sl-link)
+	     ("C-c s l" . sl-store-link)
+	     ("C-c s C-l" . sl-insert-link)))
+
+#+end_src
+
+There are currently three configurable options. I hope to add more in the future. Fair warning, I've really only tested much with the defaults (and even that is minimal).
+
+** sl-backlink-into-drawer
+Default: =t=
+
+Controls how/where to insert the backlinks.
+If non-nil a drawer will be created and backlinks inserted there.  The
+default is BACKLINKS.  If this is set to a string a drawer will be
+created using that string.  For example LINKS.  If nil backlinks will
+just be inserted under the heading.
+
+** sl-backlink-entry-format
+Default: ="[%s] <- [[%s][%s]]"=
+
+This is a string passed to =format=.
+The substitution order being time, link, description.  If
+=sl-backlink-prefix= is a string it will be inserted before this.  I
+may refactor this to be a format function instead.
+
+** sl-backlink-prefix
+Default: =nil=
+
+Prefix string to insert before the result of =sl-backlink-entry-format=.
+
+If you set =sl-backlink-into-drawer= to =nil= for some crazy reason, then you may want to set this to something.
+
+* Usage
+
+There are a few different possible use cases.
+
+** Org link replacement
+
+Instead of calling =org-store-link= call =sl-store-link=. Then to insert the link instead of =org-insert-link= call =sl-insert-link=. That will insert a link as normal while also adding a backlink at the target of the link. This should work the same as regular org links, with the benefit of adding the backlink.
+
+** sl-link
+
+To create a link a link at point call =sl-link=. That will bring up helm-org-rifle and allow you to select the target. Once selected a link will be inserted at point, and a backlink added to target.
+
+** helm-org-rifle action
+
+There is also a =helm-org-rifle= action. To use this method, with the point at the place you would like the link, call =helm-org-rifle=. Select the target of the link and from the actions menu choose =Super Link=. A link pointing to the selected candidate will be created at point, and a backlink will be added to the target.
+
+** capture template
+
+Whenever =org-capture= is called a link to the current point is automatically stored. To insert this link simply call =sl-insert-link=. The backlink will be created automatically as usual.
+
+* Notes
+
+This is still kind of in flux, so things could change... I'm still playing around with the idea a bit.
+
+I'm considering adding some kind of index kind of thing in the spirit of zettelkasten or roam or something. Not sure how I want it to work yet though.
+
+* Changelog
+** 0.1
+[2020-04-11] First release
+* License
+MIT
