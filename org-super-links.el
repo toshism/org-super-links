@@ -4,7 +4,8 @@
 
 ;; Author: tosh <tosh.lyons@gmail.com>
 ;; Version: 0.1
-;; Package-Requires: (org helm-org-rifle)
+;; Package-Version: 20200411.31
+;; Package-Requires: (org)
 ;; URL: https://github.com/toshism/org-super-links
 ;; Keywords: convenience, hypermedia
 
@@ -30,7 +31,52 @@
 ;;; Code:
 
 (require 'org)
-(require 'helm-org-rifle)
+
+;; Setup search for finding link targets.  Prefer helm-org-ql if installed, if not helm-org-rifle.
+;; If neither error.
+;; (with-eval-after-load 'helm-org-ql
+;;   (require 'helm-org-ql)
+;;   (defvar helm-org-ql-actions)
+;;   (defun sl-link-search-interface ()
+;;     "Setup the helm-org-ql search interface."
+;;     (add-to-list 'helm-org-ql-actions '("super-link-temp" . sl-insert-link-org-ql-action) nil)
+;;     (call-interactively 'helm-org-ql)
+;;     (pop helm-org-ql-actions))
+
+;; ;;;###autoload
+;;   (add-to-list 'helm-org-ql-actions '("Super Link" . sl-insert-link-org-ql-action) t)
+
+;;   (defun sl-insert-link-org-ql-action (marker)
+;;     "Wrapper for `sl--insert-link` for org-ql integration.
+;; MARKER is the point at first char in the selected heading."
+;;     (let ((buffer (if marker (marker-buffer marker) nil))
+;; 	  (pos (if marker (marker-position marker) nil)))
+;;       (sl--insert-link buffer pos))))
+
+(with-eval-after-load 'org
+  (cond ((require 'helm-org-ql nil 'noerror)
+	 (require 'helm-org-ql)
+	 (load-file "~/dev/projects/org-super-links/org-super-links-org-ql.el"))
+
+	((require 'helm-org-rifle nil 'noerror)
+	 (require 'helm-org-rifle)
+	 (load-file "~/dev/projects/org-super-links/org-super-links-org-rifle.el"))
+	(t (error "`org-super-links` requires one of `helm-org-ql` or `helm-org-rifle`"))))
+
+
+
+;; i don't know how to package multifile emacs packages, or this just doesn't work as i expect.
+;; (cond ((require 'helm-org-ql nil 'noerror)
+;;        (require 'helm-org-ql)
+;;        (require 'org-super-links-org-ql))
+
+;;       ((require 'helm-org-rifle nil 'noerror)
+;;        (require 'helm-org-rifle)
+;;        (require 'org-super-links-org-rifle))
+
+;;       (t (error "One of `helm-org-ql` or `helm-org-rifle` are required")))
+
+(declare-function sl-link-search-interface "ext:org-super-links-org")
 
 (defvar sl-backlink-into-drawer t
   "Controls how/where to insert the backlinks.
@@ -123,16 +169,6 @@ has not been thoroughly tested outside of links to/form org files."
 ;;;###autoload
 (advice-add 'org-capture :before 'sl-store-link)
 
-(defun sl-insert-link-action (candidate)
-  "Wrapper for `sl--insert-link` for helm/rifle integration.
-CANDIDATE is a helm candidate."
-  (-let (((buffer . pos) candidate))
-    (sl--insert-link buffer pos)))
-
-;; not sure if this should be autoloaded or left to config?
-;;;###autoload
-(add-to-list 'helm-org-rifle-actions '("Super Link" . sl-insert-link-action) t)
-
 ;;;###autoload
 (defun sl-insert-link ()
   "Insert a super link from the register."
@@ -150,9 +186,8 @@ CANDIDATE is a helm candidate."
 (defun sl-link ()
   "Insert a link and add a backlink to the target heading."
   (interactive)
-  (add-to-list 'helm-org-rifle-actions '("super-link-temp" . sl-insert-link-action) nil)
-  (helm-org-rifle)
-  (pop helm-org-rifle-actions))
+  (sl-link-search-interface))
 
 (provide 'org-super-links)
+
 ;;; org-super-links.el ends here
