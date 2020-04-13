@@ -104,12 +104,13 @@ normal link."
   (org-insert-last-stored-link 1))
 
 ;;;###autoload
-(defun sl-store-link ()
+(defun sl-store-link (&optional goto keys)
   "Store a point to the register for use in `sl-insert-link`.
-This is primarily intended to be called before `org-capture`, but
-could possibly even be used to replace `org-store-link` IF
-`sl-insert-link` is used to replace `org-insert-link`.  This
-has not been thoroughly tested outside of links to/form org files."
+GOTO and KEYS are unused here.  This is primarily intended to be
+called before `org-capture`, but could possibly even be used to
+replace `org-store-link` IF `sl-insert-link` is used to replace
+`org-insert-link`.  This has not been thoroughly tested outside of
+links to/form org files."
   (interactive)
   ;; we probably don't want to link to buffers not visiting a file?
   ;; definitely not if capture is called through org-protocol for example.
