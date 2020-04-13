@@ -83,8 +83,6 @@ just be inserted under the heading.
 *** sl-backlink-entry-format
 Default: =[%s] <- [[%s][%s]]=
 
-That default value looks screwed up on github and I don't know how to escape it properly. Check out this file in org or at least the raw to see the actual default value.
-
 This is a string passed to =format=.
 The substitution order being =time=, =link=, =description=.  If
 =sl-backlink-prefix= is a string it will be inserted before this.  I
