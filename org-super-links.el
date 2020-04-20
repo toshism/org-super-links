@@ -56,11 +56,11 @@
 (with-eval-after-load 'org
   (cond ((require 'helm-org-ql nil 'noerror)
 	 (require 'helm-org-ql)
-	 (load-file "~/dev/projects/org-super-links/org-super-links-org-ql.el"))
+	 (require 'org-super-links-org-ql))
 
 	((require 'helm-org-rifle nil 'noerror)
 	 (require 'helm-org-rifle)
-	 (load-file "~/dev/projects/org-super-links/org-super-links-org-rifle.el"))
+	 (require 'org-super-links-org-rifle))
 	(t (error "`org-super-links` requires one of `helm-org-ql` or `helm-org-rifle`"))))
 
 
@@ -150,7 +150,7 @@ normal link."
   (org-insert-last-stored-link 1))
 
 ;;;###autoload
-(defun sl-store-link ()
+(defun sl-store-link (&optional GOTO KEYS)
   "Store a point to the register for use in `sl-insert-link`.
 This is primarily intended to be called before `org-capture`, but
 could possibly even be used to replace `org-store-link` IF

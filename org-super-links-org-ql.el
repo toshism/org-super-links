@@ -36,7 +36,7 @@
 (defun sl-link-search-interface ()
   "Setup the helm-org-ql search interface."
   (add-to-list 'helm-org-ql-actions '("super-link-temp" . sl-insert-link-org-ql-action) nil)
-  (call-interactively 'helm-org-ql)
+  (helm-org-ql (org-agenda-files))
   (pop helm-org-ql-actions))
 
 ;;;###autoload
