@@ -5,7 +5,6 @@
 ;; Author: tosh <tosh.lyons@gmail.com>
 ;; Version: 0.1
 ;; Package-Version: 20200411.31
-;; Package-Requires: (org helm-org-rifle)
 ;; URL: https://github.com/toshism/org-super-links
 ;; Keywords: convenience, hypermedia
 
@@ -33,10 +32,24 @@
 (defvar helm-org-ql-actions)
 (declare-function sl--insert-link "org-super-links")
 
+(defun sl-buffer-mode (&optional buffer-or-name)
+  "Return the major mode associated with a buffer.
+If BUFFER-OR-NAME is nil return current buffer's mode."
+  (buffer-local-value 'major-mode
+		      (if buffer-or-name (get-buffer buffer-or-name) (current-buffer))))
+
+(defun sl-get-search-buffers ()
+  "Return the buffers to provide to `helm-org-ql`.
+If the current buffer is an `org-mode` buffer add it to `org-agenda-files`.
+Else just return `org-agenda-files`"
+  (if (string= (sl-buffer-mode) "org-mode")
+      (cons (buffer-name) (org-agenda-files))
+    (org-agenda-files)))
+
 (defun sl-link-search-interface ()
   "Setup the helm-org-ql search interface."
   (add-to-list 'helm-org-ql-actions '("super-link-temp" . sl-insert-link-org-ql-action) nil)
-  (helm-org-ql (org-agenda-files))
+  (helm-org-ql (sl-get-search-buffers))
   (pop helm-org-ql-actions))
 
 ;;;###autoload
