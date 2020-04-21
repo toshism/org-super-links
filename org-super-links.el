@@ -34,25 +34,6 @@
 
 ;; Setup search for finding link targets.  Prefer helm-org-ql if installed, if not helm-org-rifle.
 ;; If neither error.
-;; (with-eval-after-load 'helm-org-ql
-;;   (require 'helm-org-ql)
-;;   (defvar helm-org-ql-actions)
-;;   (defun sl-link-search-interface ()
-;;     "Setup the helm-org-ql search interface."
-;;     (add-to-list 'helm-org-ql-actions '("super-link-temp" . sl-insert-link-org-ql-action) nil)
-;;     (call-interactively 'helm-org-ql)
-;;     (pop helm-org-ql-actions))
-
-;; ;;;###autoload
-;;   (add-to-list 'helm-org-ql-actions '("Super Link" . sl-insert-link-org-ql-action) t)
-
-;;   (defun sl-insert-link-org-ql-action (marker)
-;;     "Wrapper for `sl--insert-link` for org-ql integration.
-;; MARKER is the point at first char in the selected heading."
-;;     (let ((buffer (if marker (marker-buffer marker) nil))
-;; 	  (pos (if marker (marker-position marker) nil)))
-;;       (sl--insert-link buffer pos))))
-
 (with-eval-after-load 'org
   (cond ((require 'helm-org-ql nil 'noerror)
 	 (require 'helm-org-ql)
@@ -62,19 +43,6 @@
 	 (require 'helm-org-rifle)
 	 (require 'org-super-links-org-rifle))
 	(t (error "`org-super-links` requires one of `helm-org-ql` or `helm-org-rifle`"))))
-
-
-
-;; i don't know how to package multifile emacs packages, or this just doesn't work as i expect.
-;; (cond ((require 'helm-org-ql nil 'noerror)
-;;        (require 'helm-org-ql)
-;;        (require 'org-super-links-org-ql))
-
-;;       ((require 'helm-org-rifle nil 'noerror)
-;;        (require 'helm-org-rifle)
-;;        (require 'org-super-links-org-rifle))
-
-;;       (t (error "One of `helm-org-ql` or `helm-org-rifle` are required")))
 
 (declare-function sl-link-search-interface "ext:org-super-links-org")
 
@@ -155,7 +123,8 @@ normal link."
 This is primarily intended to be called before `org-capture`, but
 could possibly even be used to replace `org-store-link` IF
 `sl-insert-link` is used to replace `org-insert-link`.  This
-has not been thoroughly tested outside of links to/form org files."
+has not been thoroughly tested outside of links to/form org files.
+GOTO and KEYS are unused."
   (interactive)
   ;; we probably don't want to link to buffers not visiting a file?
   ;; definitely not if capture is called through org-protocol for example.
