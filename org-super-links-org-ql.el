@@ -5,6 +5,7 @@
 ;; Author: tosh <tosh.lyons@gmail.com>
 ;; Version: 0.1
 ;; Package-Version: 20200411.31
+;; Package-Requires: (org helm-org-ql)
 ;; URL: https://github.com/toshism/org-super-links
 ;; Keywords: convenience, hypermedia
 
@@ -31,6 +32,7 @@
 
 (defvar helm-org-ql-actions)
 (declare-function sl--insert-link "org-super-links")
+(declare-function helm-org-ql "ext:helm-org-ql")
 
 (defun sl-buffer-mode (&optional buffer-or-name)
   "Return the major mode associated with a buffer.

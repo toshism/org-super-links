@@ -126,6 +126,8 @@ could possibly even be used to replace `org-store-link` IF
 has not been thoroughly tested outside of links to/form org files.
 GOTO and KEYS are unused."
   (interactive)
+  (ignore GOTO)
+  (ignore KEYS)
   ;; we probably don't want to link to buffers not visiting a file?
   ;; definitely not if capture is called through org-protocol for example.
   (if (buffer-file-name (current-buffer))
