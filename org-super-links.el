@@ -53,14 +53,76 @@ default is BACKLINKS.  If this is set to a string a drawer will be
 created using that string.  For example LINKS.  If nil backlinks will
 just be inserted under the heading.")
 
-(defvar sl-backlink-entry-format "[%s] <- [[%s][%s]]"
-  "This is a string passed to `format`.
-The substitution order being time, link, description.  If
-`sl-backlink-prefix` is a string it will be inserted before this.  I
-may refactor this to be a format function instead.")
+(defvar sl-backlink-prefix 'sl-backlink-prefix-timestamp
+  "Prefix to insert before the backlink.
+This can be a string, nil, or a function that takes no arguments and
+returns a string.
+Default is `sl-backlink-prefix-timestamp` which returns an inactive
+timestamp formatted according to `org-time-stamp-formats` and a
+separator ' <- '.")
 
-(defvar sl-backlink-prefix nil
-  "Prefix string to insert before the result of `sl-backlink-entry-format`.")
+(defvar sl-backlink-postfix nil
+  "Postfix to insert after the backlink.
+This can be a string, nil, or a function that takes no arguments and
+returns a string")
+
+(defvar sl-link-prefix nil
+  "Prefix to insert before the link.
+This can be a string, nil, or a function that takes no arguments and
+returns a string")
+
+(defvar sl-link-postfix nil
+  "Postfix to insert after the link.
+This can be a string, nil, or a function that takes no arguments and
+returns a string")
+
+(defvar sl-default-description-formatter org-make-link-description-function
+  "What to use if no description is provided.
+This can be a string, nil or a function that accepts two arguments
+LINK and DESC and returns a string.
+Default is org-make-link-desciption-function.")
+
+(defun sl-backlink-prefix ()
+  "Return an appropriate string based on `sl-backlink-prefix` variable."
+  (cond ((equal sl-backlink-prefix nil) "")
+	((stringp sl-backlink-prefix) sl-backlink-prefix)
+	(t (funcall sl-backlink-prefix))))
+
+(defun sl-backlink-postfix ()
+  "Return an appropriate string based on `sl-backlink-postfix` variable."
+  (cond ((equal sl-backlink-postfix nil) "\n")
+	((stringp sl-backlink-postfix) sl-backlink-postfix)
+	(t (funcall sl-backlink-postfix))))
+
+(defun sl-link-prefix ()
+  "Return an appropriate string based on `sl-link-prefix` variable."
+  (cond ((equal sl-link-prefix nil) "")
+	((stringp sl-link-prefix) sl-link-prefix)
+	(t (funcall sl-link-prefix))))
+
+(defun sl-link-postfix ()
+  "Return an appropriate string based on `sl-link-postfix` variable."
+  (cond ((equal sl-link-postfix nil) "\n")
+	((stringp sl-link-postfix) sl-link-postfix)
+	(t (funcall sl-link-postfix))))
+
+(defun sl-backlink-prefix-timestamp ()
+  "Return the default prefix string for a backlink.
+Inactive timestamp formatted according to `org-time-stamp-formats` and
+a separator ' <- '."
+  (let* ((time-format (substring (cdr org-time-stamp-formats) 1 -1))
+	 (time-stamp (format-time-string time-format (current-time))))
+    (format "[%s] <- "
+	    time-stamp)))
+
+(defun sl-default-description-formatter (link desc)
+  "Return a string to use as the default link desciption.
+LINK is the link target.  DESC is the provided desc."
+  (let ((p sl-default-description-formatter))
+    (cond ((equal p nil) desc)
+	  ((stringp p) p)
+	  ((fboundp p) (funcall p link desc))
+	  (t desc))))
 
 (defun sl-backlink-into-drawer ()
   "Name of the backlink drawer, as a string, or nil.
@@ -75,47 +137,40 @@ be used instead of the default value."
 	  ((stringp sl-backlink-into-drawer) sl-backlink-into-drawer)
 	  (sl-backlink-into-drawer "BACKLINKS"))))
 
-(defun sl-backlink-prefix ()
-  "Return the name of the prefix for the link as a string or nil."
-  (let ((p (org-entry-get nil "BACKLINK_PREFIX" 'inherit t)))
-    (cond ((equal p "nil") nil)
-	  ((equal p "t") "BACKLINK")
-	  ((stringp p) p)
-	  (p "BACKLINK")
-	  ((stringp sl-backlink-prefix) sl-backlink-prefix)
-	  (sl-backlink-prefix "BACKLINK"))))
-
-
 (defun sl-insert-backlink (link desc)
-  "Insert a backlink to LINK using DESC after the current headline."
-  (let* ((note-format-base (concat sl-backlink-entry-format "\n"))
-	 (time-format (substring (cdr org-time-stamp-formats) 1 -1))
-	 (time-stamp (format-time-string time-format (current-time)))
-	 (org-log-into-drawer (sl-backlink-into-drawer))
-	 (prefix (sl-backlink-prefix))
-	 (note-format (if (equal prefix nil) note-format-base (concat prefix ": " note-format-base)))
+  "Insert backlink to LINK with DESC.
+Where the backlink is placed is determined by the `sl-backlink-into-drawer` variable."
+  (let* ((org-log-into-drawer (sl-backlink-into-drawer))
+	 (description (sl-default-description-formatter link desc))
 	 (beg (org-log-beginning t)))
-
     (goto-char beg)
-    (insert (format note-format
-		    time-stamp
+    (insert (sl-backlink-prefix))
+    (insert (format "[[%s][%s]]"
 		    link
-		    desc))
+		    description))
+    (insert (sl-backlink-postfix))
     (org-indent-region beg (point))))
 
 (defun sl--insert-link (buffer pos)
-  "Insert link to BUFFER POS at current point, and create backlink to here.
+  "Insert link to BUFFER POS at current `point`, and create backlink to here.
 Only create backlinks in files in `org-mode`, otherwise just act like a
 normal link."
   (call-interactively 'org-store-link)
-  (let ((last-link (pop org-stored-links)))
+  (let ((back-link (pop org-stored-links)))
     (with-current-buffer buffer
       (save-excursion
 	(goto-char pos)
 	(when (string-equal major-mode "org-mode")
-	  (sl-insert-backlink (car last-link) (cadr last-link)))
+	  (sl-insert-backlink (car back-link) (cadr back-link)))
 	(call-interactively 'org-store-link))))
-  (org-insert-last-stored-link 1))
+  (let* ((forward-link (pop org-stored-links))
+	(link (car forward-link))
+	(description (sl-default-description-formatter link (cadr forward-link))))
+    (insert (sl-link-prefix))
+    (insert (format "[[%s][%s]]"
+		    link
+		    description))
+    (insert (sl-link-postfix))))
 
 ;;;###autoload
 (defun sl-store-link (&optional GOTO KEYS)
@@ -130,6 +185,8 @@ GOTO and KEYS are unused."
   (ignore KEYS)
   ;; we probably don't want to link to buffers not visiting a file?
   ;; definitely not if capture is called through org-protocol for example.
+  ;; TODO actually this isn't true. org can handle this in some cases.
+  ;; ie. custom link types like notmuch emails etc.
   (if (buffer-file-name (current-buffer))
       (progn
 	(point-to-register 'sl-link)
