@@ -60,7 +60,7 @@ Use it just like you would use regular org links. Instead of calling =org-store-
 
 To create a link at point call =sl-link=. That will bring up the configured search interface (=helm-org-ql by default) and allow you to select the target. Once selected a link will be inserted at point, and a backlink added to target.
 
-** helm-org-ql/helm-org-rifle action
+*** helm-org-ql/helm-org-rifle action
 
 There is also a =helm-org-ql=/=helm-org-rifle= action. To use this method, with the point at the place you would like the link, call =helm-org-ql=/=helm-org-rifle=. Select the target of the link and from the actions menu choose =Super Link=. A link pointing to the selected candidate will be created at point, and a backlink will be added to the target.
 
@@ -72,7 +72,7 @@ Whenever =org-capture= is called a link to the current point is automatically st
 
 The variables below allow quite a bit of flexibility to allow you to fit =org-super-links= into your workflow. Personally I use them all with the default settings.
 
-** sl-backlink-into-drawer
+*** sl-backlink-into-drawer
 
    Controls how/where to insert the backlinks.
    If non-nil a drawer will be created and backlinks inserted there.  The
@@ -82,7 +82,7 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
 
    Default: =t=
 
-** sl-backlink-prefix
+*** sl-backlink-prefix
 
    Prefix to insert before the backlink.
 
@@ -93,7 +93,7 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
    an inactive timestamp formatted according to the variable
    =org-time-stamp-formats= and a separator ` <- `.
 
-** sl-backlink-postfix
+*** sl-backlink-postfix
 
    Postfix to insert after the backlink.
    This can be a string, nil, or a function that takes no arguments and
@@ -101,7 +101,7 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
 
    Default =nil=
 
-** sl-link-prefix
+*** sl-link-prefix
 
    Prefix to insert before the link.
    This can be a string, nil, or a function that takes no arguments and
@@ -109,7 +109,7 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
 
    Default =nil=
 
-** sl-link-postfix nil
+*** sl-link-postfix nil
 
    Postfix to insert after the link.
    This can be a string, nil, or a function that takes no arguments and
@@ -117,7 +117,7 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
 
    Default =nil=
 
-** sl-default-description-formatter
+*** sl-default-description-formatter
    :PROPERTIES:
    :ID:       ba63c582-56ba-4772-94f6-8319f1b33ff0
    :END:
@@ -132,7 +132,7 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
 
    Default is the variable =org-make-link-desciption-function=.
 
-** sl-search-function
+*** sl-search-function
 
    The interface to use for finding target links.
    This can be a string with one of the values 'helm-org-ql',
@@ -154,7 +154,7 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
 
 These are just a few tips on things you can do that may be interesting or helpful.
 
-** org-id
+*** org-id
 
 When creating links it's generally better to use an =id=. Add this to your config file so that any headings you link to or from get an id added automatically.
 
@@ -163,7 +163,7 @@ When creating links it's generally better to use an =id=. Add this to your confi
 (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
 #+end_quote
 
-** quick "related" link
+*** quick "related" link
 
 Often when I'm writing I just want to quickly add a link to another heading that may be related. I found it's convenient to use something like this.
 
@@ -189,7 +189,7 @@ Since =org-super-links= automatically stores the current heading any time you ca
 
 These quick related links make me think I should possibly add the option to log links into a drawer too. I find myself wanting to do this reasonably often. If anybody else feels the same I'll probably add that option.
 
-** limit length of link description
+*** limit length of link description
 
 Sometimes heading titles can get a bit long. You can define a custom function to limit their length and set =sl-default-description-formatter=. Here's a very naive way to keep them short. This will blidly truncate all link descriptions to a maximum of 20 characters. You could come up with a more sofisticated function for limiting the length by words or something.
 
