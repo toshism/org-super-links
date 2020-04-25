@@ -9,7 +9,8 @@ This is still super alpha and I'm still kind of fleshing out the idea, but I thi
 * Super basic example
 
 View the org source to get an idea of how this looks.
-#+begin_quote
+
+'''
 * TODO Test heading target
   :PROPERTIES:
   :ID:       02a5da87-46e5-4ae0-85c1-ee63a570270a
@@ -27,20 +28,21 @@ This has a backlink as you can see from the BACKLINKS drawer above.
 This has a link pointing to the heading above
 
 [[id:02a5da87-46e5-4ae0-85c1-ee63a570270a][Test heading target]]
-#+end_quote
+'''
 
 * Installation
 
-This needs better instructions, but here's something basic at least. There is a dependency on [[https://github.com/alphapapa/org-rifle][helm-org-rifle]].
+This needs better instructions, but here's something basic at least for now. Once I'm reasonably happy with the interface etc. I'll try to get this on melpa.
+
+There is a dependency on either [[https://github.com/alphapapa/org-ql][helm-org-ql]] or [[https://github.com/alphapapa/org-rifle][helm-org-rifle]], or you can define a custom search function. By default it will use =helm-org-ql=. See [[id:ba63c582-56ba-4772-94f6-8319f1b33ff0][sl-default-description-formatter]] for details.
 
 This isn't on melpa, but using quelpa makes it easy. Example configuration:
 #+begin_src elisp
-    (use-package org-super-links
-      :quelpa (org-super-links :fetcher file :path "~/.emacs/elisp/org-super-links/org-super-links.el")
-      :bind (("C-c s s" . sl-link)
-	     ("C-c s l" . sl-store-link)
-	     ("C-c s C-l" . sl-insert-link)))
-
+  (use-package org-super-links
+    :quelpa (org-super-links :repo "toshism/org-super-links" :fetcher github :commit "0.2")
+    :bind (("C-c s s" . sl-link)
+	   ("C-c s l" . sl-store-link)
+	   ("C-c s C-l" . sl-insert-link)))
 #+end_src
 
 * Usage
@@ -68,30 +70,82 @@ Whenever =org-capture= is called a link to the current point is automatically st
 There are currently three configurable options. I hope to add more in the future. Fair warning, I've really only tested much with the defaults (and even that is minimal).
 
 ** sl-backlink-into-drawer
-Default: =t=
 
-Controls how/where to insert the backlinks.
-If non-nil a drawer will be created and backlinks inserted there.  The
-default is BACKLINKS.  If this is set to a string a drawer will be
-created using that string.  For example LINKS.  If nil backlinks will
-just be inserted under the heading.
+   Controls how/where to insert the backlinks.
+   If non-nil a drawer will be created and backlinks inserted there.  The
+   default is BACKLINKS.  If this is set to a string a drawer will be
+   created using that string.  For example LINKS.  If nil backlinks will
+   just be inserted under the heading.
 
-** sl-backlink-entry-format
-Default: ="[%s] <- [[%s][%s]]"=
-
-That default value looks screwed up on github and I don't know how to escape it properly. Check out this file in org or at least the raw to see the actual default value.
-
-This is a string passed to =format=.
-The substitution order being time, link, description.  If
-=sl-backlink-prefix= is a string it will be inserted before this.  I
-may refactor this to be a format function instead.
+   Default: =t=
 
 ** sl-backlink-prefix
-Default: =nil=
 
-Prefix string to insert before the result of =sl-backlink-entry-format=.
+   Prefix to insert before the backlink.
 
-If you set =sl-backlink-into-drawer= to =nil= for some crazy reason, then you may want to set this to something.
+   This can be a string, nil, or a function that takes no arguments
+   and returns a string.
+
+   Default is the function =sl-backlink-prefix-timestamp= which returns
+   an inactive timestamp formatted according to the variable
+   =org-time-stamp-formats= and a separator ` <- `.
+
+** sl-backlink-postfix
+
+   Postfix to insert after the backlink.
+   This can be a string, nil, or a function that takes no arguments and
+   returns a string
+
+   Default =nil=
+
+** sl-link-prefix
+
+   Prefix to insert before the link.
+   This can be a string, nil, or a function that takes no arguments and
+   returns a string
+
+   Default nil
+
+** sl-link-postfix nil
+
+   Postfix to insert after the link.
+   This can be a string, nil, or a function that takes no arguments and
+   returns a string
+
+   Default =nil=
+
+** sl-default-description-formatter
+   :PROPERTIES:
+   :ID:       ba63c582-56ba-4772-94f6-8319f1b33ff0
+   :END:
+
+   What to use if no description is provided.
+   This can be a string, nil or a function that accepts two arguments
+   LINK and DESC and returns a string.
+
+   nil will return the default desciption or the link.
+   string will be used only as a default fall back if set.
+   function will be called for every link.
+
+   Default is the variable =org-make-link-desciption-function=.
+
+** sl-search-function
+
+   The interface to use for finding target links.
+   This can be a string with one of the values 'helm-org-ql',
+   'helm-org-rifle', or a custom function.  If you provide a custom
+   function it will be called with the `point` at the location the link
+   should be inserted.  The only other requirement is that it should call
+   the function =sl--insert-link= with the `buffer` and `pos` of the
+   target link.  AKA the place you want the backlink.
+
+   Using 'helm-org-ql' or 'helm-org-rifle' will also add a new action to
+   the respective action menu.
+
+   See the function =sl-link-search-interface-ql= in the
+   =org-super-links-org-ql.el= file for an example.
+
+   Default ='helm-org-ql'=
 
 * Notes
 
@@ -100,7 +154,21 @@ This is still kind of in flux, so things could change... I'm still playing aroun
 I'm considering adding some kind of index kind of thing in the spirit of zettelkasten or roam or something. Not sure how I want it to work yet though.
 
 * Changelog
+** 0.2
+
+[2020-04-25]
+
+- Default target heading search changed to =helm-org-ql=
+- Allow target heading search to be configurable through =sl-search-function=
+- Add more configuration options for link formatting
+- Support for customizing the default link descripton =sl-default-description-formatter=
+
+Bugfixes:
+- fix issue when calling =org-capture= from a non-org-mode buffer.
+
 ** 0.1
+
 [2020-04-11] First release
+
 * License
 MIT
