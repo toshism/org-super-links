@@ -3,8 +3,7 @@
 ;; Copyright (C) 2020  tosh
 
 ;; Author: tosh <tosh.lyons@gmail.com>
-;; Version: 0.1
-;; Package-Version: 20200411.31
+;; Version: 0.2
 ;; Package-Requires: (org)
 ;; URL: https://github.com/toshism/org-super-links
 ;; Keywords: convenience, hypermedia
