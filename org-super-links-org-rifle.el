@@ -39,13 +39,14 @@
 (defun sl-insert-link-rifle-action (candidate)
   "Wrapper for `sl--insert-link` for helm/rifle integration.
 CANDIDATE is a helm candidate."
-  (-let (((buffer . pos) candidate))
+  (let ((buffer (car candidate))
+	(pos (cdr candidate)))
     (sl--insert-link buffer pos)))
 
 ;;;###autoload
 (add-to-list 'helm-org-rifle-actions '("Super Link" . sl-insert-link-rifle-action) t)
 
-(defun sl-link-search-interface ()
+(defun sl-link-search-interface-rifle ()
   "Search interface for helm-rifle."
   (add-to-list 'helm-org-rifle-actions '("super-link-temp" . sl-insert-link-rifle-action) nil)
   (helm-org-rifle)

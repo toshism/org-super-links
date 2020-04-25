@@ -32,20 +32,6 @@
 
 (require 'org)
 
-;; Setup search for finding link targets.  Prefer helm-org-ql if installed, if not helm-org-rifle.
-;; If neither error.
-(with-eval-after-load 'org
-  (cond ((require 'helm-org-ql nil 'noerror)
-	 (require 'helm-org-ql)
-	 (require 'org-super-links-org-ql))
-
-	((require 'helm-org-rifle nil 'noerror)
-	 (require 'helm-org-rifle)
-	 (require 'org-super-links-org-rifle))
-	(t (error "`org-super-links` requires one of `helm-org-ql` or `helm-org-rifle`"))))
-
-(declare-function sl-link-search-interface "ext:org-super-links-org")
-
 (defvar sl-backlink-into-drawer t
   "Controls how/where to insert the backlinks.
 If non-nil a drawer will be created and backlinks inserted there.  The
@@ -57,9 +43,10 @@ just be inserted under the heading.")
   "Prefix to insert before the backlink.
 This can be a string, nil, or a function that takes no arguments and
 returns a string.
-Default is `sl-backlink-prefix-timestamp` which returns an inactive
-timestamp formatted according to `org-time-stamp-formats` and a
-separator ' <- '.")
+
+Default is the function `sl-backlink-prefix-timestamp' which returns
+an inactive timestamp formatted according to the variable
+`org-time-stamp-formats' and a separator ' <- '.")
 
 (defvar sl-backlink-postfix nil
   "Postfix to insert after the backlink.
@@ -80,35 +67,67 @@ returns a string")
   "What to use if no description is provided.
 This can be a string, nil or a function that accepts two arguments
 LINK and DESC and returns a string.
-Default is org-make-link-desciption-function.")
+
+nil will return the default desciption or the link.
+string will be used only as a default fall back if set.
+function will be called for every link.
+
+Default is the variable `org-make-link-desciption-function'.")
+
+(defvar sl-search-function "helm-org-ql"
+  "The interface to use for finding target links.
+This can be a string with one of the values 'helm-org-ql',
+'helm-org-rifle', or a custom function.  If you provide a custom
+function it will be called with the `point` at the location the link
+should be inserted.  The only other requirement is that it should call
+the function `sl--insert-link' with the `buffer` and `pos` of the
+target link.  AKA the place you want the backlink.
+
+Using 'helm-org-ql' or 'helm-org-rifle' will also add a new action to
+the respective action menu.
+
+See the function `sl-link-search-interface-ql' or for an example.")
+
+(declare-function sl-link-search-interface-ql "ext:org-super-links-org-ql")
+(declare-function sl-link-search-interface-rifle "ext:org-super-links-org-rifle")
+
+(defun sl-search-function ()
+  "Call the search interface specified in `sl-search-function'."
+  (cond ((string= sl-search-function "helm-org-ql")
+	 (require 'org-super-links-org-ql)
+	 (sl-link-search-interface-ql))
+	((string= sl-search-function "helm-org-rifle")
+	 (require 'org-super-links-org-rifle)
+	 (sl-link-search-interface-rifle))
+	(t (funcall sl-search-function))))
 
 (defun sl-backlink-prefix ()
-  "Return an appropriate string based on `sl-backlink-prefix` variable."
+  "Return an appropriate string based on variable `sl-backlink-prefix'."
   (cond ((equal sl-backlink-prefix nil) "")
 	((stringp sl-backlink-prefix) sl-backlink-prefix)
 	(t (funcall sl-backlink-prefix))))
 
 (defun sl-backlink-postfix ()
-  "Return an appropriate string based on `sl-backlink-postfix` variable."
+  "Return an appropriate string based on variable `sl-backlink-postfix'."
   (cond ((equal sl-backlink-postfix nil) "\n")
 	((stringp sl-backlink-postfix) sl-backlink-postfix)
 	(t (funcall sl-backlink-postfix))))
 
 (defun sl-link-prefix ()
-  "Return an appropriate string based on `sl-link-prefix` variable."
+  "Return an appropriate string based on variable `sl-link-prefix'."
   (cond ((equal sl-link-prefix nil) "")
 	((stringp sl-link-prefix) sl-link-prefix)
 	(t (funcall sl-link-prefix))))
 
 (defun sl-link-postfix ()
-  "Return an appropriate string based on `sl-link-postfix` variable."
+  "Return an appropriate string based on variable `sl-link-postfix'."
   (cond ((equal sl-link-postfix nil) "\n")
 	((stringp sl-link-postfix) sl-link-postfix)
 	(t (funcall sl-link-postfix))))
 
 (defun sl-backlink-prefix-timestamp ()
   "Return the default prefix string for a backlink.
-Inactive timestamp formatted according to `org-time-stamp-formats` and
+Inactive timestamp formatted according to `org-time-stamp-formats' and
 a separator ' <- '."
   (let* ((time-format (substring (cdr org-time-stamp-formats) 1 -1))
 	 (time-stamp (format-time-string time-format (current-time))))
@@ -116,11 +135,11 @@ a separator ' <- '."
 	    time-stamp)))
 
 (defun sl-default-description-formatter (link desc)
-  "Return a string to use as the default link desciption.
+  "Return a string to use as the link desciption.
 LINK is the link target.  DESC is the provided desc."
   (let ((p sl-default-description-formatter))
-    (cond ((equal p nil) desc)
-	  ((stringp p) p)
+    (cond ((equal p nil) (or desc link))
+	  ((stringp p) (or desc p))
 	  ((fboundp p) (funcall p link desc))
 	  (t desc))))
 
@@ -139,7 +158,7 @@ be used instead of the default value."
 
 (defun sl-insert-backlink (link desc)
   "Insert backlink to LINK with DESC.
-Where the backlink is placed is determined by the `sl-backlink-into-drawer` variable."
+Where the backlink is placed is determined by the variable `sl-backlink-into-drawer'."
   (let* ((org-log-into-drawer (sl-backlink-into-drawer))
 	 (description (sl-default-description-formatter link desc))
 	 (beg (org-log-beginning t)))
@@ -153,7 +172,7 @@ Where the backlink is placed is determined by the `sl-backlink-into-drawer` vari
 
 (defun sl--insert-link (buffer pos)
   "Insert link to BUFFER POS at current `point`, and create backlink to here.
-Only create backlinks in files in `org-mode`, otherwise just act like a
+Only create backlinks in files in `org-mode', otherwise just act like a
 normal link."
   (call-interactively 'org-store-link)
   (let ((back-link (pop org-stored-links)))
@@ -164,8 +183,8 @@ normal link."
 	  (sl-insert-backlink (car back-link) (cadr back-link)))
 	(call-interactively 'org-store-link))))
   (let* ((forward-link (pop org-stored-links))
-	(link (car forward-link))
-	(description (sl-default-description-formatter link (cadr forward-link))))
+	 (link (car forward-link))
+	 (description (sl-default-description-formatter link (cadr forward-link))))
     (insert (sl-link-prefix))
     (insert (format "[[%s][%s]]"
 		    link
@@ -174,24 +193,17 @@ normal link."
 
 ;;;###autoload
 (defun sl-store-link (&optional GOTO KEYS)
-  "Store a point to the register for use in `sl-insert-link`.
-This is primarily intended to be called before `org-capture`, but
-could possibly even be used to replace `org-store-link` IF
-`sl-insert-link` is used to replace `org-insert-link`.  This
+  "Store a point to the register for use in function `sl-insert-link'.
+This is primarily intended to be called before `org-capture', but
+could possibly even be used to replace `org-store-link' IF
+function `sl-insert-link' is used to replace `org-insert-link'.  This
 has not been thoroughly tested outside of links to/form org files.
 GOTO and KEYS are unused."
   (interactive)
   (ignore GOTO)
   (ignore KEYS)
-  ;; we probably don't want to link to buffers not visiting a file?
-  ;; definitely not if capture is called through org-protocol for example.
-  ;; TODO actually this isn't true. org can handle this in some cases.
-  ;; ie. custom link types like notmuch emails etc.
-  (if (buffer-file-name (current-buffer))
-      (progn
-	(point-to-register 'sl-link)
-	(message "Link copied"))
-    (message "No method for storing a link to this buffer.")))
+  (point-to-register 'sl-link)
+  (message "Link copied"))
 
 ;; not sure if this should be autoloaded or left to config?
 ;;;###autoload
@@ -214,7 +226,7 @@ GOTO and KEYS are unused."
 (defun sl-link ()
   "Insert a link and add a backlink to the target heading."
   (interactive)
-  (sl-link-search-interface))
+  (sl-search-function))
 
 (provide 'org-super-links)
 

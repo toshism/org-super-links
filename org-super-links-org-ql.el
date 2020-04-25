@@ -33,6 +33,7 @@
 (defvar helm-org-ql-actions)
 (declare-function sl--insert-link "org-super-links")
 (declare-function helm-org-ql "ext:helm-org-ql")
+(declare-function org-agenda-files "ext:org-mode")
 
 (defun sl-buffer-mode (&optional buffer-or-name)
   "Return the major mode associated with a buffer.
@@ -44,11 +45,13 @@ If BUFFER-OR-NAME is nil return current buffer's mode."
   "Return the buffers to provide to `helm-org-ql`.
 If the current buffer is an `org-mode` buffer add it to `org-agenda-files`.
 Else just return `org-agenda-files`"
-  (if (string= (sl-buffer-mode) "org-mode")
-      (cons (buffer-name) (org-agenda-files))
+  ;; this needs to add the buffer you were on before opening a capture
+  ;; template too (if it's an org mode file)
+  (if (and (string= (sl-buffer-mode) "org-mode") (buffer-file-name))
+      (cons (buffer-file-name) (org-agenda-files))
     (org-agenda-files)))
 
-(defun sl-link-search-interface ()
+(defun sl-link-search-interface-ql ()
   "Setup the helm-org-ql search interface."
   (add-to-list 'helm-org-ql-actions '("super-link-temp" . sl-insert-link-org-ql-action) nil)
   (helm-org-ql (sl-get-search-buffers))
