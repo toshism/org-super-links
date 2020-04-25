@@ -31,12 +31,11 @@ This has a link pointing to the heading above
 [[id:02a5da87-46e5-4ae0-85c1-ee63a570270a][Test heading target]]
 #+end_src
 
-
 * Installation
 
 This needs better instructions, but here's something basic at least for now. Once I'm reasonably happy with the interface etc. I'll try to get this on melpa.
 
-There is a dependency on either [[https://github.com/alphapapa/org-ql][helm-org-ql]] or [[https://github.com/alphapapa/org-rifle][helm-org-rifle]], or you can define a custom search function. By default it will use =helm-org-ql=. See [[id:ba63c582-56ba-4772-94f6-8319f1b33ff0][sl-default-description-formatter]] for details.
+There is a dependency on either [[https://github.com/alphapapa/org-ql][helm-org-ql]] or [[https://github.com/alphapapa/org-rifle][helm-org-rifle]], so you will need at least one of those installed, or you can define a custom search function. By default it will use =helm-org-ql=. See '[[id:ba63c582-56ba-4772-94f6-8319f1b33ff0][sl-default-description-formatter]]' for details.
 
 This isn't on melpa, but using quelpa makes it easy. Example configuration:
 #+begin_src elisp
