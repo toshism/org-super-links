@@ -105,7 +105,7 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
    This can be a string, nil, or a function that takes no arguments and
    returns a string
 
-   Default nil
+   Default =nil=
 
 ** sl-link-postfix nil
 
@@ -146,7 +146,7 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
    See the function =sl-link-search-interface-ql= in the
    =org-super-links-org-ql.el= file for an example.
 
-   Default ='helm-org-ql'=
+   Default "=helm-org-ql="
 
 * Tips
 
