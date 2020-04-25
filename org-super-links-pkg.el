@@ -1,4 +1,4 @@
 (define-package
   "org-super-links"
-  "0.1"
+  "0.2"
   "Make links with backlinks.")
