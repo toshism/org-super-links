@@ -8,10 +8,10 @@ This is still super alpha and I'm still kind of fleshing out the idea, but I thi
 
 * Super basic example
 
-View the org source to get an idea of how this looks.
+View the org source to get a better idea of how this looks.
 
-'''
-* TODO Test heading target
+#+begin_src
+,* TODO Test heading target
   :PROPERTIES:
   :ID:       02a5da87-46e5-4ae0-85c1-ee63a570270a
   :END:
@@ -21,14 +21,16 @@ View the org source to get an idea of how this looks.
 
 This has a backlink as you can see from the BACKLINKS drawer above.
 
-* TODO This has a link
+,* TODO This has a link
   :PROPERTIES:
   :ID:       3835d3d0-931a-4a45-a015-a3d6a0baa99a
   :END:
+
 This has a link pointing to the heading above
 
 [[id:02a5da87-46e5-4ae0-85c1-ee63a570270a][Test heading target]]
-'''
+#+end_src
+
 
 * Installation
 
