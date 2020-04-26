@@ -209,6 +209,10 @@ This is still kind of in flux, so things could change... I'm still playing aroun
 I'm considering adding some kind of index kind of thing in the spirit of zettelkasten or roam or something. Not sure how I want it to work yet though.
 
 * Changelog
+
+Bugfixes
+- respect org-mode link configurations
+
 ** 0.2
 
 [2020-04-25]
