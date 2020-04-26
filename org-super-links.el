@@ -163,9 +163,7 @@ Where the backlink is placed is determined by the variable `sl-backlink-into-dra
 	 (beg (org-log-beginning t)))
     (goto-char beg)
     (insert (sl-backlink-prefix))
-    (insert (format "[[%s][%s]]"
-		    link
-		    description))
+    (org-insert-link nil link description)
     (insert (sl-backlink-postfix))
     (org-indent-region beg (point))))
 
@@ -185,9 +183,7 @@ normal link."
 	 (link (car forward-link))
 	 (description (sl-default-description-formatter link (cadr forward-link))))
     (insert (sl-link-prefix))
-    (insert (format "[[%s][%s]]"
-		    link
-		    description))
+    (org-insert-link nil link description)
     (insert (sl-link-postfix))))
 
 ;;;###autoload
