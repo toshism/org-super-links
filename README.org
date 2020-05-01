@@ -219,7 +219,7 @@ If you use =org-sidebar= and you use a drawer for your backlinks then you can se
     :bind (("C-c s s" . sl-link)
 	   ("C-c s l" . sl-store-link)
 	   ("C-c s C-l" . sl-insert-link)
-	   ("C-c s b" . sl-backlink-sidebar)))
+	   ("C-c s b" . sl-backlinks-sidebar)))
 #+end_src
 
 #+RESULTS:
