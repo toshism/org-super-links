@@ -206,6 +206,22 @@ Sometimes heading titles can get a bit long. You can define a custom function to
 
 The default value of =sl-default-description-formatter= is set to =org-make-link-description= so you can also set that to apply the changes to all org-mode links globally.
 
+*** backlinks sidebar
+
+If you use =org-sidebar= and you use a drawer for your backlinks then you can set a keybinding to open up and org-sidebar with all of the backlinks for the current heading. I personally use something like below.
+
+#+begin_src elisp
+  (use-package org-super-links
+    :quelpa (org-super-links :repo "toshism/org-super-links" :fetcher github :commit "feature/backlinks-sidebar")
+    :bind (("C-c s s" . sl-link)
+	   ("C-c s l" . sl-store-link)
+	   ("C-c s C-l" . sl-insert-link)
+	   ("C-c s b" . sl-backlink-sidebar)))
+#+end_src
+
+#+RESULTS:
+: sl-backlink-sidebar
+
 * Notes
 
 This is still kind of in flux, so things could change... I'm still playing around with the idea a bit. If you want something that will stay reasonably stable pick a tag.
