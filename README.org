@@ -212,7 +212,10 @@ If you use =org-sidebar= and you use a drawer for your backlinks then you can se
 
 #+begin_src elisp
   (use-package org-super-links
-    :quelpa (org-super-links :repo "toshism/org-super-links" :fetcher github :commit "feature/backlinks-sidebar")
+    :quelpa (org-super-links
+	     :repo "toshism/org-super-links"
+	     :fetcher github
+	     :commit "feature/backlinks-sidebar")
     :bind (("C-c s s" . sl-link)
 	   ("C-c s l" . sl-store-link)
 	   ("C-c s C-l" . sl-insert-link)
