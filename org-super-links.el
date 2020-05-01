@@ -167,6 +167,37 @@ Where the backlink is placed is determined by the variable `sl-backlink-into-dra
     (insert (sl-backlink-postfix))
     (org-indent-region beg (point))))
 
+(defun sl-get-backlinks ()
+  "EXPERIMENTAL return the ids of all backlinks for the currentheading.
+This currently only works with backlinks in a drawer, and for links that use IDs."
+  (save-excursion
+    (unless (org-at-heading-p)
+      (outline-previous-heading))
+    (when (re-search-forward (concat "^:" (sl-backlink-into-drawer) ":$") (save-excursion
+                                               (outline-next-heading)
+                                               (point))
+			     t)
+      (let* ((elt (org-element-property-drawer-parser nil))
+	     (beg (org-element-property :contents-begin elt))
+	     (end (org-element-property :contents-end elt)))
+	(org-element-map
+	    (org-element-parse-secondary-string (buffer-substring beg end) '(link))
+	    'link
+	  (lambda (link)
+	    (when (string= (org-element-property :type link) "id")
+	      (org-element-property :path link))))))))
+
+(defun sl-backlinks-sidebar ()
+  "EXPERIMENTAL Show backlinks for heading.
+This currently only works with backlinks in a drawer, and for links that use IDs."
+    (interactive)
+    (let ((ids (sl-get-backlinks)))
+      (org-sidebar-ql
+        (org-agenda-files)
+        `(and (property "ID") (member (org-entry-get (point) "ID") (quote ,ids)))
+        :sort 'date
+        :title "BACKLINKS")))
+
 (defun sl--insert-link (buffer pos)
   "Insert link to BUFFER POS at current `point`, and create backlink to here.
 Only create backlinks in files in `org-mode', otherwise just act like a

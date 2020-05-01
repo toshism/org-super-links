@@ -68,6 +68,10 @@ There is also a =helm-org-ql=/=helm-org-rifle= action. To use this method, with 
 
 Whenever =org-capture= is called a link to the current point is automatically stored. To insert this link simply call =sl-insert-link=. The backlink will be created automatically as usual.
 
+*** sl-backlinks-sidebar (experimental)
+
+This one currently comes with a lot of caveats, but if you use a drawer for your backlinks, and you use =org-side-bar= then there is the function =sl-backlinks-sidebar= which will open a sidebar with all of the headings that have linked to the current heading. See [[https://github.com/alphapapa/org-sidebar][org-sidebar]] for more details on the functionality that provides.
+
 * Configuration
 
 The variables below allow quite a bit of flexibility to allow you to fit =org-super-links= into your workflow. Personally I use them all with the default settings.
@@ -209,6 +213,8 @@ This is still kind of in flux, so things could change... I'm still playing aroun
 I'm considering adding some kind of index kind of thing in the spirit of zettelkasten or roam or something. Not sure how I want it to work yet though.
 
 * Changelog
+
+- added backlinks side bar (experimental)
 
 Bugfixes
 - respect org-mode link configurations
