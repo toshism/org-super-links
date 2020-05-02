@@ -163,6 +163,56 @@ be used instead of the default value."
 	  ((stringp sl-backlink-into-drawer) sl-backlink-into-drawer)
 	  (sl-backlink-into-drawer "BACKLINKS"))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; EXPERIMENTAL related into drawer
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defvar sl-related-into-drawer nil)
+
+(defun sl-related-into-drawer ()
+  "Name of the realted drawer, as a string, or nil.
+This is the value of `sl-related-into-drawer'.  However, if the
+current entry has or inherits a RELATED_INTO_DRAWER property, it will
+be used instead of the default value."
+  (let ((p (org-entry-get nil "RELATED_INTO_DRAWER" 'inherit t)))
+    (cond ((equal p "nil") nil)
+	  ((equal p "t") "RELATED")
+	  ((stringp p) p)
+	  (p "RELATED")
+	  ((stringp sl-related-into-drawer) sl-related-into-drawer)
+	  (sl-related-into-drawer "RELATED"))))
+
+(defun sl-insert-relatedlink (link desc)
+  "LINK DESC related experiment."
+  (let* ((org-log-into-drawer (sl-related-into-drawer))
+	 (description (sl-default-description-formatter link desc))
+	 (beg (org-log-beginning t)))
+    (goto-char beg)
+    (insert (sl-link-prefix))
+    (org-insert-link nil link description)
+    (insert (sl-link-postfix))
+    (org-indent-region beg (point))))
+
+(defun sl-link-prefix-timestamp ()
+  "Return the default prefix string for a backlink.
+Inactive timestamp formatted according to `org-time-stamp-formats' and
+a separator ' -> '."
+  (let* ((time-format (substring (cdr org-time-stamp-formats) 1 -1))
+	 (time-stamp (format-time-string time-format (current-time))))
+    (format "[%s] -> "
+	    time-stamp)))
+
+(defun sl-quick-insert-related ()
+  (interactive)
+  (let ((sl-related-into-drawer t)
+	(sl-link-prefix 'sl-link-prefix-timestamp))
+    (sl-link)))
+
+(global-set-key (kbd "C-c s i") 'sl-quick-insert-related)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; /EXPERIMENTAL related into drawer
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun sl-insert-backlink (link desc)
   "Insert backlink to LINK with DESC.
 Where the backlink is placed is determined by the variable `sl-backlink-into-drawer'."
@@ -192,9 +242,11 @@ normal link."
   (let* ((forward-link (pop org-stored-links))
 	 (link (car forward-link))
 	 (description (sl-default-description-formatter link (cadr forward-link))))
-    (insert (sl-link-prefix))
-    (org-insert-link nil link description)
-    (insert (sl-link-postfix))))
+    (if (sl-related-into-drawer)
+	(sl-insert-relatedlink link description)
+      (insert (sl-link-prefix))
+      (org-insert-link nil link description)
+      (insert (sl-link-postfix)))))
 
 ;;;###autoload
 (defun sl-store-link (&optional GOTO KEYS)
