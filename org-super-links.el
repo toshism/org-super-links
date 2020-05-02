@@ -184,14 +184,17 @@ be used instead of the default value."
 
 (defun sl-insert-relatedlink (link desc)
   "LINK DESC related experiment."
-  (let* ((org-log-into-drawer (sl-related-into-drawer))
-	 (description (sl-default-description-formatter link desc))
-	 (beg (org-log-beginning t)))
-    (goto-char beg)
+  (if (sl-related-into-drawer)
+      (let* ((org-log-into-drawer (sl-related-into-drawer))
+	     (beg (org-log-beginning t)))
+	(goto-char beg)
+	(insert (sl-link-prefix))
+	(org-insert-link nil link desc)
+	(insert (sl-link-postfix))
+	(org-indent-region beg (point)))
     (insert (sl-link-prefix))
-    (org-insert-link nil link description)
-    (insert (sl-link-postfix))
-    (org-indent-region beg (point))))
+    (org-insert-link nil link desc)
+    (insert (sl-link-postfix))))
 
 (defun sl-link-prefix-timestamp ()
   "Return the default prefix string for a backlink.
@@ -242,11 +245,7 @@ normal link."
   (let* ((forward-link (pop org-stored-links))
 	 (link (car forward-link))
 	 (description (sl-default-description-formatter link (cadr forward-link))))
-    (if (sl-related-into-drawer)
-	(sl-insert-relatedlink link description)
-      (insert (sl-link-prefix))
-      (org-insert-link nil link description)
-      (insert (sl-link-postfix)))))
+    (sl-insert-relatedlink link description)))
 
 ;;;###autoload
 (defun sl-store-link (&optional GOTO KEYS)
