@@ -168,6 +168,7 @@ be used instead of the default value."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar sl-related-into-drawer nil)
+(defvar sl-related-drawer-default-name "RELATED")
 
 (defun sl-related-into-drawer ()
   "Name of the realted drawer, as a string, or nil.
@@ -176,11 +177,11 @@ current entry has or inherits a RELATED_INTO_DRAWER property, it will
 be used instead of the default value."
   (let ((p (org-entry-get nil "RELATED_INTO_DRAWER" 'inherit t)))
     (cond ((equal p "nil") nil)
-	  ((equal p "t") "RELATED")
+	  ((equal p "t") sl-related-drawer-default-name)
 	  ((stringp p) p)
-	  (p "RELATED")
+	  (p sl-related-drawer-default-name)
 	  ((stringp sl-related-into-drawer) sl-related-into-drawer)
-	  (sl-related-into-drawer "RELATED"))))
+	  (sl-related-into-drawer sl-related-drawer-default-name))))
 
 (defun sl-insert-relatedlink (link desc)
   "LINK DESC related experiment."
@@ -205,13 +206,22 @@ a separator ' -> '."
     (format "[%s] -> "
 	    time-stamp)))
 
-(defun sl-quick-insert-related ()
+(defun sl-quick-insert-drawer-link ()
   (interactive)
-  (let ((sl-related-into-drawer t)
+  ;; how to handle prefix here?
+  (let ((sl-related-into-drawer (or sl-related-into-drawer t))
 	(sl-link-prefix 'sl-link-prefix-timestamp))
     (sl-link)))
 
-(global-set-key (kbd "C-c s i") 'sl-quick-insert-related)
+(defun sl-quick-insert-inline-link ()
+  (interactive)
+  ;; how to handle prefix here?
+  (let ((sl-related-into-drawer nil)
+	(sl-link-prefix nil))
+    (sl-link)))
+
+(global-set-key (kbd "C-c s d") 'sl-quick-insert-drawer-link)
+(global-set-key (kbd "C-c s i") 'sl-quick-insert-inline-link)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; /EXPERIMENTAL related into drawer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
