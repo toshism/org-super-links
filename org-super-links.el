@@ -87,6 +87,14 @@ the respective action menu.
 
 See the function `sl-link-search-interface-ql' or for an example.")
 
+(defvar sl-pre-link-hook nil
+  "Hook called before storing the link on the link side.
+This is called with point at the location where it was called.")
+
+(defvar sl-pre-backlink-hook nil
+  "Hook called before storing the link on the backlink side.
+This is called with point in the heading of the backlink.")
+
 (declare-function sl-link-search-interface-ql "ext:org-super-links-org-ql")
 (declare-function sl-link-search-interface-rifle "ext:org-super-links-org-rifle")
 
@@ -171,11 +179,13 @@ Where the backlink is placed is determined by the variable `sl-backlink-into-dra
   "Insert link to BUFFER POS at current `point`, and create backlink to here.
 Only create backlinks in files in `org-mode', otherwise just act like a
 normal link."
+  (run-hooks 'sl-pre-link-hook)
   (call-interactively 'org-store-link)
   (let ((back-link (pop org-stored-links)))
     (with-current-buffer buffer
       (save-excursion
 	(goto-char pos)
+	(run-hooks 'sl-pre-backlink-hook)
 	(when (string-equal major-mode "org-mode")
 	  (sl-insert-backlink (car back-link) (cadr back-link)))
 	(call-interactively 'org-store-link))))
