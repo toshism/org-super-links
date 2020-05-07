@@ -179,22 +179,24 @@ Where the backlink is placed is determined by the variable `sl-backlink-into-dra
   "Insert link to BUFFER POS at current `point`, and create backlink to here.
 Only create backlinks in files in `org-mode', otherwise just act like a
 normal link."
-  (run-hooks 'sl-pre-link-hook)
-  (call-interactively 'org-store-link)
-  (let ((back-link (pop org-stored-links)))
-    (with-current-buffer buffer
-      (save-excursion
-	(goto-char pos)
-	(run-hooks 'sl-pre-backlink-hook)
-	(when (string-equal major-mode "org-mode")
-	  (sl-insert-backlink (car back-link) (cadr back-link)))
-	(call-interactively 'org-store-link))))
-  (let* ((forward-link (pop org-stored-links))
-	 (link (car forward-link))
-	 (description (sl-default-description-formatter link (cadr forward-link))))
-    (insert (sl-link-prefix))
-    (org-insert-link nil link description)
-    (insert (sl-link-postfix))))
+  (let ((b1 (make-marker)))
+    (set-marker b1 pos buffer)
+    (run-hooks 'sl-pre-link-hook)
+    (call-interactively 'org-store-link)
+    (let ((back-link (pop org-stored-links)))
+      (with-current-buffer (marker-buffer b1)
+	(save-excursion
+	  (goto-char (marker-position b1))
+	  (run-hooks 'sl-pre-backlink-hook)
+	  (when (string-equal major-mode "org-mode")
+	    (sl-insert-backlink (car back-link) (cadr back-link)))
+	  (call-interactively 'org-store-link))))
+    (let* ((forward-link (pop org-stored-links))
+	   (link (car forward-link))
+	   (description (sl-default-description-formatter link (cadr forward-link))))
+      (insert (sl-link-prefix))
+      (org-insert-link nil link description)
+      (insert (sl-link-postfix)))))
 
 ;;;###autoload
 (defun sl-store-link (&optional GOTO KEYS)

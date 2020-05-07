@@ -216,6 +216,7 @@ I'm considering adding some kind of index kind of thing in the spirit of zettelk
 
 Bugfixes
 - respect org-mode link configurations
+- fix possible incorrect link location after buffer modified by hook(s)
 
 ** 0.2
 
