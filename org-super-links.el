@@ -167,8 +167,9 @@ be used instead of the default value."
 ;; EXPERIMENTAL related into drawer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar sl-related-into-drawer nil)
+(defvar sl-related-into-drawer t)
 (defvar sl-related-drawer-default-name "RELATED")
+(defvar sl-link-prefix 'sl-link-prefix-timestamp)
 
 (defun sl-related-into-drawer ()
   "Name of the realted drawer, as a string, or nil.
@@ -242,20 +243,22 @@ Where the backlink is placed is determined by the variable `sl-backlink-into-dra
   "Insert link to BUFFER POS at current `point`, and create backlink to here.
 Only create backlinks in files in `org-mode', otherwise just act like a
 normal link."
-  (run-hooks 'sl-pre-link-hook)
-  (call-interactively 'org-store-link)
-  (let ((back-link (pop org-stored-links)))
-    (with-current-buffer buffer
-      (save-excursion
-	(goto-char pos)
-	(run-hooks 'sl-pre-backlink-hook)
-	(when (string-equal major-mode "org-mode")
-	  (sl-insert-backlink (car back-link) (cadr back-link)))
-	(call-interactively 'org-store-link))))
-  (let* ((forward-link (pop org-stored-links))
-	 (link (car forward-link))
-	 (description (sl-default-description-formatter link (cadr forward-link))))
-    (sl-insert-relatedlink link description)))
+  (let ((b1 (make-marker)))
+    (set-marker b1 pos buffer)
+    (run-hooks 'sl-pre-link-hook)
+    (call-interactively 'org-store-link)
+    (let ((back-link (pop org-stored-links)))
+      (with-current-buffer (marker-buffer b1)
+	(save-excursion
+	  (goto-char (marker-position b1))
+	  (run-hooks 'sl-pre-backlink-hook)
+	  (when (string-equal major-mode "org-mode")
+	    (sl-insert-backlink (car back-link) (cadr back-link)))
+	  (call-interactively 'org-store-link))))
+    (let* ((forward-link (pop org-stored-links))
+	   (link (car forward-link))
+	   (description (sl-default-description-formatter link (cadr forward-link))))
+      (sl-insert-relatedlink link description))))
 
 ;;;###autoload
 (defun sl-store-link (&optional GOTO KEYS)
@@ -268,8 +271,17 @@ GOTO and KEYS are unused."
   (interactive)
   (ignore GOTO)
   (ignore KEYS)
-  (point-to-register 'sl-link)
-  (message "Link copied"))
+  (save-excursion
+    ;; this is a hack. if the point is at the first char of a heading
+    ;; the marker is not updated as expected when text is inserted
+    ;; above the heading. for exapmle a capture template inserted
+    ;; above. that results in the link being to the heading above the
+    ;; expected heading.
+    (goto-char (line-end-position))
+    (let ((c1 (make-marker)))
+      (set-marker c1 (point) (current-buffer))
+      (set-register ?^ c1)
+      (message "Link copied"))))
 
 ;; not sure if this should be autoloaded or left to config?
 ;;;###autoload
@@ -279,13 +291,13 @@ GOTO and KEYS are unused."
 (defun sl-insert-link ()
   "Insert a super link from the register."
   (interactive)
-  (let* ((marker (get-register 'sl-link))
+  (let* ((marker (get-register ?^))
 	 (buffer (if marker (marker-buffer marker) nil))
 	 (pos (if marker (marker-position marker) nil)))
     (if (and buffer pos)
 	(progn
 	  (sl--insert-link buffer pos)
-	  (set-register 'sl-link nil))
+	  (set-register ?^ nil))
       (message "No link to insert!"))))
 
 ;;;###autoload
