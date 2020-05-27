@@ -217,6 +217,7 @@ I'm considering adding some kind of index kind of thing in the spirit of zettelk
 Bugfixes
 - respect org-mode link configurations
 - fix possible incorrect link location after buffer modified by hook(s)
+- fix void-variable helm-org-ql-actions bug
 
 ** 0.2
 
