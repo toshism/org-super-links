@@ -50,6 +50,7 @@ Else just return `org-agenda-files`"
       (cons (buffer-file-name) (org-agenda-files))
     (org-agenda-files)))
 
+
 (defun sl-link-search-interface-ql ()
   "Setup the helm-org-ql search interface."
   (add-to-list 'helm-org-ql-actions '("super-link-temp" . sl-insert-link-org-ql-action) nil)
@@ -62,9 +63,7 @@ Else just return `org-agenda-files`"
 (defun sl-insert-link-org-ql-action (marker)
   "Wrapper for `sl--insert-link` for org-ql integration.
 MARKER is the point at first char in the selected heading."
-  (let ((buffer (if marker (marker-buffer marker) nil))
-	(pos (if marker (marker-position marker) nil)))
-    (sl--insert-link buffer pos)))
+  (sl--insert-link marker))
 
 (provide 'org-super-links-org-ql)
 
