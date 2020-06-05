@@ -44,18 +44,14 @@ CANDIDATE is a helm candidate."
     (set-marker target pos buffer)
     (sl--insert-link target)))
 
-;;;###autoload
-(add-to-list 'helm-org-rifle-actions '("Super Link" . sl-insert-link-rifle-action) t)
+(with-eval-after-load "helm-org-ql"
+  (add-to-list 'helm-org-rifle-actions '("Super Link" . sl-insert-link-rifle-action) t))
 
 (defun sl-link-search-interface-rifle ()
   "Search interface for helm-rifle."
   (add-to-list 'helm-org-rifle-actions '("super-link-temp" . sl-insert-link-rifle-action) nil)
   (helm-org-rifle)
   (pop helm-org-rifle-actions))
-
-;;;###autoload
-(add-to-list 'helm-org-rifle-actions '("Super Link" . sl-insert-link-rifle-action) t)
-
 
 (provide 'org-super-links-org-rifle)
 

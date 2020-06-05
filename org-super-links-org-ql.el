@@ -56,8 +56,8 @@ Else just return `org-agenda-files`"
   (helm-org-ql (sl-get-search-buffers))
   (pop helm-org-ql-actions))
 
-;;;###autoload
-(add-to-list 'helm-org-ql-actions '("Super Link" . sl-insert-link-org-ql-action) t)
+(with-eval-after-load "helm-org-ql"
+  (add-to-list 'helm-org-ql-actions '("Super Link" . sl-insert-link-org-ql-action) t))
 
 (defun sl-insert-link-org-ql-action (marker)
   "Wrapper for `sl--insert-link` for org-ql integration.
