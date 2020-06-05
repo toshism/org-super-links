@@ -37,7 +37,7 @@ This needs better instructions, but here's something basic at least for now. Onc
 
 There is a dependency on either [[https://github.com/alphapapa/org-ql][helm-org-ql]] or [[https://github.com/alphapapa/org-rifle][helm-org-rifle]], so you will need at least one of those installed, or you can define a custom search function. By default it will use =helm-org-ql=. See '[[id:ba63c582-56ba-4772-94f6-8319f1b33ff0][sl-default-description-formatter]]' for details.
 
-This isn't on melpa, but using [[https://github.com/quelpa/quelpa][quelpa]] makes it easy. Example configuration:
+This isn't on melpa, but using [[https://github.com/quelpa/quelpa][quelpa]] makes it easy. Example basic configuration:
 #+begin_src elisp
   (use-package org-super-links
     :quelpa (org-super-links :repo "toshism/org-super-links" :fetcher github :commit "0.2")
@@ -67,6 +67,14 @@ There is also a =helm-org-ql=/=helm-org-rifle= action. To use this method, with 
 *** capture template
 
 Whenever =org-capture= is called a link to the current point is automatically stored. To insert this link simply call =sl-insert-link=. The backlink will be created automatically as usual.
+
+*** sl-quick-insert-inline-link
+
+Creates a link ignoring the =sl-related-into-drawer= and =sl-link-prefix= settings and inserts a link with no prefix at point.
+
+*** sl-quick-insert-drawer-link
+
+The inverse of =sl-quick-insert-inline-link=. Insert a link ignoring the =sl-related-into-drawer= and =sl-link-prefix= settings. Inserts a link using =sl-link-prefix-timestamp= for the prefix and either =sl-related-into-drawer= or =sl-related-drawer-default-name= for the drawer name. =sl-related-into-drawer= has precedence if it's set to a string.
 
 * Configuration
 
@@ -100,6 +108,25 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
    returns a string
 
    Default =nil=
+
+*** sl-related-into-drawer
+
+   Controls how/where to insert links.
+   If non-nil a drawer will be created and links inserted there.  The
+   default is `sl-related-drawer-default-name'.  If this is set to a
+   string a drawer will be created using that string.  For example LINKS.
+   If nil links will just be inserted at point.
+
+   Default: =nil=
+
+*** sl-related-drawer-default-name
+
+   Default name to use for link drawer if `sl-related-into-drawer' is
+   't'.  See `sl-related-into-drawer' for more info. This is also used
+   when calling `sl-quick-insert-drawer-link' if
+   `sl-related-into-drawer' is =nil=.
+
+   Default: =RELATED=
 
 *** sl-link-prefix
 
@@ -156,14 +183,16 @@ These are just a few tips on things you can do that may be interesting or helpfu
 
 *** org-id
 
-When creating links it's generally better to use an =id=. Add this to your config file so that any headings you link to or from get an id added automatically.
+When creating links it's generally better to use an =id=. Add this to your config file so that any headings you link to or from get an id added automatically. I would stringly recomend using this.
 
-#+begin_quote elisp
+#+begin_src elisp
 (require 'org-id)
 (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
-#+end_quote
+#+end_src
 
 *** quick "related" link
+
+OUTDATED: I've added two functions to replace these. `sl-quick-insert-drawer-link' and `sl-quick-insert-inline-link'. I'll leave these here in case someone may still be interested for some reason.
 
 Often when I'm writing I just want to quickly add a link to another heading that may be related. I found it's convenient to use something like this.
 
@@ -202,14 +231,70 @@ Sometimes heading titles can get a bit long. You can define a custom function to
 
 The default value of =sl-default-description-formatter= is set to =org-make-link-description= so you can also set that to apply the changes to all org-mode links globally.
 
+*** Index headlines
+
+I've found it's useful to create "index headlines" to make navigating notes convenient. For example I have a hiearchy of locations I use for location specific notes such as restaurant recomendations or vacation planning. These often end up being just a heading with a bunch of backlinks from various notes.
+
+#+begin_src
+
+,* Locations
+,** Germany                                                          :germany:
+,*** Berlin                                                           :berlin:
+   :BACKLINKS:
+   [2020-04-11 Sat 00:26] <- [[id:3835d3d0-931a-4a45-a015-a3d6a0baa99a][some restaurant]]
+   :END:
+,*** Wuerzburg                                                     :wuerzburg:
+   :BACKLINKS:
+   [2020-05-21 Sat 00:26] <- [[id:3835d3d0-931a-4a45-a015-a3d6a0baa99a][some other thing]]
+   [2020-04-11 Sat 00:26] <- [[id:3835d3d0-931a-4a45-a015-a3d6a0baa99][So and so's house]]
+   :END:
+,** USA
+,*** Texas                                                             :texas:
+,**** Amarillo                                                      :amarillo:
+   :BACKLINKS:
+   [2020-05-21 Sat 00:26] <- [[id:3835d3d0-931a-4a45-a015-a3d6a0baa99a][yeah again]]
+   [2020-04-11 Sat 00:26] <- [[id:3835d3d0-931a-4a45-a015-a3d6a0baa99a][rental car place]]
+   :END:
+,**** Austin                                                          :austin:
+     etc...
+
+ #+end_src
+
+I do a similar thing for any topic I find myself creating a lot of notes for but that I may not want to be under the same heading, or if I want it under multiple headings.
+
+This combination of tags and index headings makes it easy to find things.
+
+*** My personal setup and configuration
+
+#+begin_src elisp
+(use-package org-super-links
+  :quelpa (org-super-links :repo "toshism/org-super-links" :fetcher github :commit "develop")
+  :bind (("C-c s s" . sl-link)
+	 ("C-c s l" . sl-store-link)
+	 ("C-c s C-l" . sl-insert-link)
+	 ("C-c s d" . sl-quick-insert-drawer-link)
+	 ("C-c s i" . sl-quick-insert-inline-link))
+  :config
+  (setq sl-related-into-drawer t
+  	sl-link-prefix 'sl-link-prefix-timestamp))
+
+#+end_src
+
+Over time I've grown to prefer to just add links and backlinks both into drawers. I map =C-c s i= to =sl-quick-insert-inline-link= for the rare occasion where I want a link inline. This ends up functioning sort of zettelkasten style.
+
 * Notes
 
-This is still kind of in flux, so things could change... I'm still playing around with the idea a bit. If you want something that will stay reasonably stable pick a tag.
+This is still kind of in flux, so things could change... It's starting to settle down, but I'm still playing around with the idea a bit. If you want something that will stay reasonably stable pick a tag.
 
 I'm considering adding some kind of index kind of thing in the spirit of zettelkasten or roam or something. Not sure how I want it to work yet though.
 
 * Changelog
 
+- add related into drawer option
+- add quick inserts
+  - sl-quick-insert-drawer-link
+  - sl-quick-insert-inline-link
+- switch to using markers internally for all positions
 - add hooks
   - sl-pre-link-hook
   - sl-pre-backlink-hook
