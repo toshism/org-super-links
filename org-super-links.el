@@ -52,6 +52,17 @@ an inactive timestamp formatted according to the variable
 This can be a string, nil, or a function that takes no arguments and
 returns a string")
 
+(defvar sl-related-into-drawer nil
+    "Controls how/where to insert links.
+If non-nil a drawer will be created and links inserted there.  The
+default is `sl-related-drawer-default-name'.  If this is set to a
+string a drawer will be created using that string.  For example LINKS.
+If nil links will just be inserted at point.")
+
+(defvar sl-related-drawer-default-name "RELATED"
+  "Default name to use for link drawer if `sl-related-into-drawer' is 't'.
+See `sl-related-into-drawer' for more info.")
+
 (defvar sl-link-prefix nil
   "Prefix to insert before the link.
 This can be a string, nil, or a function that takes no arguments and
@@ -79,8 +90,8 @@ This can be a string with one of the values 'helm-org-ql',
 'helm-org-rifle', or a custom function.  If you provide a custom
 function it will be called with the `point` at the location the link
 should be inserted.  The only other requirement is that it should call
-the function `sl--insert-link' with the `buffer` and `pos` of the
-target link.  AKA the place you want the backlink.
+the function `sl--insert-link' with a marker to the target link.  AKA
+the place you want the backlink.
 
 Using 'helm-org-ql' or 'helm-org-rifle' will also add a new action to
 the respective action menu.
@@ -167,10 +178,6 @@ be used instead of the default value."
 ;; EXPERIMENTAL related into drawer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar sl-related-into-drawer t)
-(defvar sl-related-drawer-default-name "RELATED")
-(defvar sl-link-prefix 'sl-link-prefix-timestamp)
-
 (defun sl-related-into-drawer ()
   "Name of the realted drawer, as a string, or nil.
 This is the value of `sl-related-into-drawer'.  However, if the
@@ -221,8 +228,6 @@ a separator ' -> '."
 	(sl-link-prefix nil))
     (sl-link)))
 
-(global-set-key (kbd "C-c s d") 'sl-quick-insert-drawer-link)
-(global-set-key (kbd "C-c s i") 'sl-quick-insert-inline-link)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; /EXPERIMENTAL related into drawer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -239,26 +244,24 @@ Where the backlink is placed is determined by the variable `sl-backlink-into-dra
     (insert (sl-backlink-postfix))
     (org-indent-region beg (point))))
 
-(defun sl--insert-link (buffer pos)
-  "Insert link to BUFFER POS at current `point`, and create backlink to here.
+(defun sl--insert-link (target)
+  "Insert link to marker TARGET at current `point`, and create backlink to here.
 Only create backlinks in files in `org-mode', otherwise just act like a
 normal link."
-  (let ((b1 (make-marker)))
-    (set-marker b1 pos buffer)
-    (run-hooks 'sl-pre-link-hook)
-    (call-interactively 'org-store-link)
-    (let ((back-link (pop org-stored-links)))
-      (with-current-buffer (marker-buffer b1)
-	(save-excursion
-	  (goto-char (marker-position b1))
-	  (run-hooks 'sl-pre-backlink-hook)
-	  (when (string-equal major-mode "org-mode")
-	    (sl-insert-backlink (car back-link) (cadr back-link)))
-	  (call-interactively 'org-store-link))))
-    (let* ((forward-link (pop org-stored-links))
-	   (link (car forward-link))
-	   (description (sl-default-description-formatter link (cadr forward-link))))
-      (sl-insert-relatedlink link description))))
+  (run-hooks 'sl-pre-link-hook)
+  (call-interactively 'org-store-link)
+  (let ((back-link (pop org-stored-links)))
+    (with-current-buffer (marker-buffer target)
+      (save-excursion
+	(goto-char (marker-position target))
+	(run-hooks 'sl-pre-backlink-hook)
+	(when (string-equal major-mode "org-mode")
+	  (sl-insert-backlink (car back-link) (cadr back-link)))
+	(call-interactively 'org-store-link))))
+  (let* ((forward-link (pop org-stored-links))
+	 (link (car forward-link))
+	 (description (sl-default-description-formatter link (cadr forward-link))))
+    (sl-insert-relatedlink link description)))
 
 ;;;###autoload
 (defun sl-store-link (&optional GOTO KEYS)
@@ -291,12 +294,10 @@ GOTO and KEYS are unused."
 (defun sl-insert-link ()
   "Insert a super link from the register."
   (interactive)
-  (let* ((marker (get-register ?^))
-	 (buffer (if marker (marker-buffer marker) nil))
-	 (pos (if marker (marker-position marker) nil)))
-    (if (and buffer pos)
+  (let* ((target (get-register ?^)))
+    (if target
 	(progn
-	  (sl--insert-link buffer pos)
+	  (sl--insert-link target)
 	  (set-register ?^ nil))
       (message "No link to insert!"))))
 

@@ -39,8 +39,10 @@
   "Wrapper for `sl--insert-link` for helm/rifle integration.
 CANDIDATE is a helm candidate."
   (let ((buffer (car candidate))
-	(pos (cdr candidate)))
-    (sl--insert-link buffer pos)))
+	(pos (cdr candidate))
+	(target (make-marker)))
+    (set-marker target pos buffer)
+    (sl--insert-link target)))
 
 ;;;###autoload
 (add-to-list 'helm-org-rifle-actions '("Super Link" . sl-insert-link-rifle-action) t)
