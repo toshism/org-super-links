@@ -77,8 +77,12 @@ Creates a link ignoring the =sl-related-into-drawer= and =sl-link-prefix= settin
 The inverse of =sl-quick-insert-inline-link=. Insert a link ignoring the =sl-related-into-drawer= and =sl-link-prefix= settings. Inserts a link using =sl-link-prefix-timestamp= for the prefix and either =sl-related-into-drawer= or =sl-related-drawer-default-name= for the drawer name. =sl-related-into-drawer= has precedence if it's set to a string.
 
 * Configuration
+  :PROPERTIES:
+  :ID:       34982936-b74c-44bb-9a52-83049bde817a
+  :END:
 
-The variables below allow quite a bit of flexibility to allow you to fit =org-super-links= into your workflow. Personally I use them all with the default settings.
+The variables below allow quite a bit of flexibility to allow you to fit =org-super-links= into your workflow. None of these are required. [[id:8588b345-9852-4ae5-a70b-f8649f08fbf3][My personal setup and configuration.]]
+
 
 *** sl-backlink-into-drawer
 
@@ -265,6 +269,12 @@ I do a similar thing for any topic I find myself creating a lot of notes for but
 This combination of tags and index headings makes it easy to find things.
 
 *** My personal setup and configuration
+    :PROPERTIES:
+    :ID:       8588b345-9852-4ae5-a70b-f8649f08fbf3
+    :END:
+    :BACKLINKS:
+    [2020-06-06 Sat 01:26] <- [[id:34982936-b74c-44bb-9a52-83049bde817a][Configuration]]
+    :END:
 
 #+begin_src elisp
 (use-package org-super-links
@@ -281,6 +291,17 @@ This combination of tags and index headings makes it easy to find things.
 #+end_src
 
 Over time I've grown to prefer to just add links and backlinks both into drawers. I map =C-c s i= to =sl-quick-insert-inline-link= for the rare occasion where I want a link inline. This ends up functioning sort of zettelkasten style.
+
+*** drawer size
+
+This is not specific to =org-super-links= but I like to set the face for drawers to be fairly small and the color close to the background. It helps keep things from looking cluttered when the drawers are collapsed.
+
+I use something like this in my theme.
+#+begin_src elisp
+(org-drawer :foreground "#2F3841" :height 0.8)
+#+end_src
+
+That will make the drawer quite small when collapsed but the text inside full size when expanded.
 
 * Notes
 
