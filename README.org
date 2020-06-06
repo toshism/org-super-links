@@ -4,7 +4,7 @@ Create links with auto backlinks is the general idea.
 
 I'm trying to keep this as flexible as possible. There are a few different ways to use this to support different use cases and workflows. See Usage for a more detailed explanation.
 
-This is still super alpha and I'm still kind of fleshing out the idea, but I think I like it.
+I'm still kind of fleshing out the idea, but I think I like it.
 
 * Super basic example
 
@@ -82,8 +82,7 @@ This works from either side, and deletes both sides of a link.
 
 * Configuration
 
-The variables below allow quite a bit of flexibility to allow you to fit =org-super-links= into your workflow. None of these are required. My personal config is below under Tips
-
+The variables below allow quite a bit of flexibility to allow you to fit =org-super-links= into your workflow. None of these are required. My personal config is [[#my-personal-setup-and-configuration][here]]
 
 *** sl-backlink-into-drawer
 
@@ -344,6 +343,10 @@ Bugfixes:
 ** 0.1
 
 [2020-04-11] First release
+
+* Credits
+
+Thanks to [[https://github.com/alphapapa][alphapapa]] for the awesome [[http://github.com/alphapapa/org-ql][org-ql]] and [[http://github.com/alphapapa/org-rifle][org-rifle]] packages.
 
 * License
 MIT
