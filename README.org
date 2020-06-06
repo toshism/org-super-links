@@ -60,7 +60,7 @@ To create a link at point call =sl-link=. That will bring up the configured sear
 
 *** helm-org-ql/helm-org-rifle action
 
-There is also a =helm-org-ql=/=helm-org-rifle= action. To use this method, with the point at the place you would like the link, call =helm-org-ql=/=helm-org-rifle=. Select the target of the link and from the actions menu choose =Super Link=. A link pointing to the selected candidate will be created at point, and a backlink will be added to the target.
+There is also a =helm-org-ql= and =helm-org-rifle= action. To use this method, with the point at the place you would like the link, call =helm-org-ql= / =helm-org-rifle=. Select the target of the link and from the actions menu choose =Super Link=. A link pointing to the selected candidate will be created at point, and a backlink will be added to the target.
 
 *** capture template
 
@@ -322,6 +322,7 @@ I'm considering adding some kind of index kind of thing in the spirit of zettelk
 - add hooks
   - sl-pre-link-hook
   - sl-pre-backlink-hook
+- license change to GPLv3
 
 Bugfixes
 - respect org-mode link configurations
@@ -349,4 +350,5 @@ Bugfixes:
 Thanks to [[https://github.com/alphapapa][alphapapa]] for the awesome [[http://github.com/alphapapa/org-ql][org-ql]] and [[http://github.com/alphapapa/org-rifle][org-rifle]] packages.
 
 * License
+
 GPLv3
