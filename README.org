@@ -349,4 +349,4 @@ Bugfixes:
 Thanks to [[https://github.com/alphapapa][alphapapa]] for the awesome [[http://github.com/alphapapa/org-ql][org-ql]] and [[http://github.com/alphapapa/org-rifle][org-rifle]] packages.
 
 * License
-MIT
+GPLv3
