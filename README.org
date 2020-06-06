@@ -2,7 +2,7 @@
 
 Create links with auto backlinks is the general idea.
 
-I'm trying to keep this as flexible as possible. There are a few different ways to use this to support different use cases and workflows. See Usage for a more detailed explanation.
+I'm trying to keep this as flexible as possible. There are a few different ways to use this to support different use cases and workflows. See [[#usage][Usage]] for a more detailed explanation.
 
 I'm still kind of fleshing out the idea, but I think I like it.
 
@@ -56,7 +56,7 @@ Use it just like you would use regular org links. Instead of calling =org-store-
 
 *** sl-link
 
-To create a link at point call =sl-link=. That will bring up the configured search interface (=helm-org-ql by default) and allow you to select the target. Once selected a link will be inserted at point, and a backlink added to target.
+To create a link at point call =sl-link=. That will bring up the configured search interface (=helm-org-ql= by default) and allow you to select the target. Once selected a link will be inserted at point, and a backlink added to target.
 
 *** helm-org-ql/helm-org-rifle action
 
@@ -117,7 +117,7 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
 
    Controls how/where to insert links.
    If non-nil a drawer will be created and links inserted there.  The
-   default is `sl-related-drawer-default-name'.  If this is set to a
+   default is =sl-related-drawer-default-name=.  If this is set to a
    string a drawer will be created using that string.  For example LINKS.
    If nil links will just be inserted at point.
 
@@ -125,17 +125,17 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
 
 *** sl-related-drawer-default-name
 
-   Default name to use for link drawer if `sl-related-into-drawer' is
-   't'.  See `sl-related-into-drawer' for more info. This is also used
-   when calling `sl-quick-insert-drawer-link' if
-   `sl-related-into-drawer' is =nil=.
+   Default name to use for link drawer if =sl-related-into-drawer= is
+   =t=.  See [[#sl-related-into-drawer][sl-related-into-drawer]] for more info. This is also used
+   when calling =sl-quick-insert-drawer-link= if
+   =sl-related-into-drawer= is =nil=.
 
    Default: =RELATED=
 
 *** sl-link-prefix
 
    Prefix to insert before the link.
-   This can be a string, nil, or a function that takes no arguments and
+   This can be a string, =nil=, or a function that takes no arguments and
    returns a string
 
    Default =nil=
@@ -143,7 +143,7 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
 *** sl-link-postfix nil
 
    Postfix to insert after the link.
-   This can be a string, nil, or a function that takes no arguments and
+   This can be a string, =nil=, or a function that takes no arguments and
    returns a string
 
    Default =nil=
@@ -154,10 +154,10 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
    :END:
 
    What to use if no description is provided.
-   This can be a string, nil or a function that accepts two arguments
+   This can be a string, =nil= or a function that accepts two arguments
    LINK and DESC and returns a string.
 
-   nil will return the default desciption or the link.
+   =nil= will return the default desciption or the link.
    string will be used only as a default fall back if set.
    function will be called for every link.
 
@@ -170,7 +170,7 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
    'helm-org-rifle', or a function.  If you provide a custom
    function it will be called with the `point` at the location the link
    should be inserted.  The only other requirement is that it should call
-   the function =sl--insert-link= with the `buffer` and `pos` of the
+   the function =sl--insert-link= with the =buffer= and =pos= of the
    target link.  AKA the place you want the backlink.
 
    Using [[https://github.com/alphapapa/org-ql][helm-org-ql]] or [[https://github.com/alphapapa/org-rifle][helm-org-rifle]] will also add a new action to
@@ -191,7 +191,7 @@ These are just a few tips on things you can do that may be interesting or helpfu
 
 *** org-id
 
-When creating links it's generally better to use an =id=. Add this to your config file so that any headings you link to or from get an id added automatically. I would stringly recomend using this.
+When creating links it's generally better to use an =id=. Add this to your config file so that any headings you link to or from get an id added automatically. I would strongly recomend using this.
 
 #+begin_src elisp
 (require 'org-id)
@@ -200,7 +200,7 @@ When creating links it's generally better to use an =id=. Add this to your confi
 
 *** quick "related" link
 
-OUTDATED: I've added two functions to replace these. `sl-quick-insert-drawer-link' and `sl-quick-insert-inline-link'. I'll leave these here in case someone may still be interested for some reason.
+OUTDATED: I've added two functions to replace these. =sl-quick-insert-drawer-link= and =sl-quick-insert-inline-link=. I'll leave these here in case someone may still be interested for some reason.
 
 Often when I'm writing I just want to quickly add a link to another heading that may be related. I found it's convenient to use something like this.
 
@@ -228,7 +228,7 @@ These quick related links make me think I should possibly add the option to log 
 
 *** limit length of link description
 
-Sometimes heading titles can get a bit long. You can define a custom function to limit their length and set =sl-default-description-formatter=. Here's a very naive way to keep them short. This will blidly truncate all link descriptions to a maximum of 20 characters. You could come up with a more sofisticated function for limiting the length by words or something.
+Sometimes heading titles can get a bit long. You can define a custom function to limit their length and set =sl-default-description-formatter=. Here's a very naive way to keep them short. This will blidly truncate all link descriptions to a maximum of 20 characters. You could come up with a more sophisticated function for limiting the length by words or something.
 
 #+begin_src elisp
   (defun sl-truncate-description (link desc)
