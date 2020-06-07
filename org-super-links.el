@@ -246,8 +246,8 @@ Where the backlink is placed is determined by the variable `sl-backlink-into-dra
 
 (defun sl--insert-link (target)
   "Insert link to marker TARGET at current `point`, and create backlink to here.
-Only create backlinks in files in `org-mode', otherwise just act like a
-normal link."
+Only create backlinks in files in `org-mode' or a derived mode, otherwise just
+act like a normal link."
   (run-hooks 'sl-pre-link-hook)
   (call-interactively 'org-store-link)
   (let ((back-link (pop org-stored-links)))
@@ -255,7 +255,7 @@ normal link."
       (save-excursion
 	(goto-char (marker-position target))
 	(run-hooks 'sl-pre-backlink-hook)
-	(when (string-equal major-mode "org-mode")
+  (when (derived-mode-p 'org-mode)
 	  (sl-insert-backlink (car back-link) (cadr back-link)))
 	(call-interactively 'org-store-link))))
   (let* ((forward-link (pop org-stored-links))
