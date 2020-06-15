@@ -323,6 +323,7 @@ I'm considering adding some kind of index kind of thing in the spirit of zettelk
   - sl-pre-link-hook
   - sl-pre-backlink-hook
 - license change to GPLv3
+- support backlinks in org derived modes from [[https://github.com/philScholl][@philScholl]]
 
 Bugfixes
 - respect org-mode link configurations
@@ -347,7 +348,8 @@ Bugfixes:
 
 * Credits
 
-Thanks to [[https://github.com/alphapapa][alphapapa]] for the awesome [[http://github.com/alphapapa/org-ql][org-ql]] and [[http://github.com/alphapapa/org-rifle][org-rifle]] packages.
+Thanks to:
+- [[https://github.com/alphapapa][alphapapa]] for the awesome [[http://github.com/alphapapa/org-ql][org-ql]] and [[http://github.com/alphapapa/org-rifle][org-rifle]] packages.
 
 * License
 
