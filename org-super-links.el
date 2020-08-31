@@ -244,47 +244,47 @@ Where the backlink is placed is determined by the variable `sl-backlink-into-dra
     (insert (sl-backlink-postfix))
     (org-indent-region beg (point))))
 
-(defun sl--insert-link (target)
+
+(defun sl-links-action (marker hooks)
+  (with-current-buffer (marker-buffer marker)
+    (save-excursion
+      (goto-char (marker-position marker))
+      (run-hooks hooks)
+      (call-interactively 'org-store-link)
+      (pop org-stored-links))))
+
+(defun sl-link-builder (link)
+  (let* ((link-ref (car link))
+	 (pre-desc (cadr link))
+	 (description (sl-default-description-formatter link-ref pre-desc)))
+    (cons link-ref description)))
+
+(defun sl--insert-link (source target)
   "Insert link to marker TARGET at current `point`, and create backlink to here.
 Only create backlinks in files in `org-mode' or a derived mode, otherwise just
 act like a normal link."
-  (run-hooks 'sl-pre-link-hook)
-  (call-interactively 'org-store-link)
-  (let ((back-link (pop org-stored-links)))
+  (let* ((source-link (sl-links-action source 'sl-pre-link-hook))
+	(target-link (sl-links-action target 'sl-pre-backlink-hook))
+	(source-formatted-link (sl-link-builder source-link))
+	(target-formatted-link (sl-link-builder target-link)))
+    (with-current-buffer (marker-buffer source)
+      (save-excursion
+	(goto-char (marker-position source))
+	(sl-insert-relatedlink (car target-formatted-link) (cdr target-formatted-link))))
     (with-current-buffer (marker-buffer target)
       (save-excursion
 	(goto-char (marker-position target))
-	(run-hooks 'sl-pre-backlink-hook)
-  (when (derived-mode-p 'org-mode)
-	  (sl-insert-backlink (car back-link) (cadr back-link)))
-	(call-interactively 'org-store-link))))
-  (let* ((forward-link (pop org-stored-links))
-	 (link (car forward-link))
-	 (description (sl-default-description-formatter link (cadr forward-link))))
-    (sl-insert-relatedlink link description)))
+	(when (derived-mode-p 'org-mode)
+	  (sl-insert-backlink (car source-formatted-link) (cdr source-formatted-link)))))))
 
 ;;;###autoload
 (defun sl-store-link (&optional GOTO KEYS)
-  "Store a point to the register for use in function `sl-insert-link'.
-This is primarily intended to be called before `org-capture', but
-could possibly even be used to replace `org-store-link' IF
-function `sl-insert-link' is used to replace `org-insert-link'.  This
-has not been thoroughly tested outside of links to/form org files.
-GOTO and KEYS are unused."
   (interactive)
   (ignore GOTO)
   (ignore KEYS)
-  (save-excursion
-    ;; this is a hack. if the point is at the first char of a heading
-    ;; the marker is not updated as expected when text is inserted
-    ;; above the heading. for exapmle a capture template inserted
-    ;; above. that results in the link being to the heading above the
-    ;; expected heading.
-    (goto-char (line-end-position))
-    (let ((c1 (make-marker)))
-      (set-marker c1 (point) (current-buffer))
-      (set-register ?^ c1)
-      (message "Link copied"))))
+  (let ((target (point-marker)))
+    (set-register ?^ target)
+    (message "Link copied")))
 
 ;; not sure if this should be autoloaded or left to config?
 ;;;###autoload
@@ -297,7 +297,7 @@ GOTO and KEYS are unused."
   (let* ((target (get-register ?^)))
     (if target
 	(progn
-	  (sl--insert-link target)
+	  (sl--insert-link (point-marker) target)
 	  (set-register ?^ nil))
       (message "No link to insert!"))))
 
@@ -305,7 +305,7 @@ GOTO and KEYS are unused."
 (defun sl-link ()
   "Insert a link and add a backlink to the target heading."
   (interactive)
-  (sl-search-function))
+  (org-linker 'sl--insert-link))
 
 (provide 'org-super-links)
 
