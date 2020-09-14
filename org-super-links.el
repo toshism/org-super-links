@@ -190,6 +190,64 @@ be used instead of the default value."
 	  ((stringp sl-backlink-into-drawer) sl-backlink-into-drawer)
 	  (sl-backlink-into-drawer "BACKLINKS"))))
 
+;; delete related functions
+(defun sl--find-link (id)
+  "Return link element for ID."
+  (sl--org-narrow-to-here)
+  (let ((link
+	 (org-element-map (org-element-parse-buffer) 'link
+	   (lambda (link)
+	     (when (string= (org-element-property :path link) id)
+	       link)))))
+    (widen)
+    (if (> (length link) 1)
+	(error "Multiple links found. Cancelling delete")
+      (car link))))
+
+(defun sl--org-narrow-to-here ()
+  "Narrow to current heading, excluding subheadings."
+  (org-narrow-to-subtree)
+  (save-excursion
+    (org-next-visible-heading 1)
+    (narrow-to-region (point-min) (point))))
+
+
+(defun sl--in-drawer ()
+  "Return nil if point is not in a drawer.
+Return element at point is in a drawer."
+  (let ((element (org-element-at-point)))
+    (while (and element
+		(not (memq (org-element-type element) '(drawer property-drawer))))
+      (setq element (org-element-property :parent element)))
+    element))
+
+
+(defun sl--delete-link (link)
+  "Delete the LINK.
+If point is in drawer, delete the entire line."
+  (save-excursion
+    (goto-char (org-element-property :begin link))
+    (if (sl--in-drawer)
+	(progn
+	  (kill-whole-line 1)
+	  (org-remove-empty-drawer-at (point)))
+      (delete-region (org-element-property :begin link) (org-element-property :end link)))))
+
+(defun sl-delete-link ()
+  "Delete the link under cursor, and the corresponding reverse link.
+If no reverse link exists, just delete link at point."
+  (interactive)
+  (save-window-excursion
+    (with-current-buffer (current-buffer)
+      (save-excursion
+	(let ((id (org-id-get (point))))
+	  (org-open-at-point)
+	  (let ((link-element (sl--find-link id)))
+	    (if link-element
+		(sl--delete-link link-element)
+	      (message "No backlink found. Deleting active only.")))))))
+  (sl--delete-link (org-element-context)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; EXPERIMENTAL related into drawer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
