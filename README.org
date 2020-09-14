@@ -35,8 +35,6 @@ This has a link pointing to the heading above
 
 This needs better instructions, but here's something basic at least for now. Once I'm reasonably happy with the interface etc. I'll try to get this on melpa.
 
-There is a dependency on either [[https://github.com/alphapapa/org-ql][helm-org-ql]] or [[https://github.com/alphapapa/org-rifle][helm-org-rifle]], so you will need at least one of those installed, or you can define a custom search function. By default it will use =helm-org-ql=. See '[[id:ba63c582-56ba-4772-94f6-8319f1b33ff0][sl-default-description-formatter]]' for details.
-
 This isn't on melpa, but using [[https://github.com/quelpa/quelpa][quelpa]] makes it easy. Example basic configuration:
 #+begin_src elisp
   (use-package org-super-links
@@ -164,19 +162,18 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
 
    The interface to use for finding target links.
    This can be a string with one of the values 'helm-org-ql',
-   'helm-org-rifle', or a custom function.  If you provide a custom
+   'helm-org-rifle', or a function.  If you provide a custom
    function it will be called with the `point` at the location the link
    should be inserted.  The only other requirement is that it should call
    the function =sl--insert-link= with the `buffer` and `pos` of the
    target link.  AKA the place you want the backlink.
 
-   Using 'helm-org-ql' or 'helm-org-rifle' will also add a new action to
+   Using [[https://github.com/alphapapa/org-ql][helm-org-ql]] or [[https://github.com/alphapapa/org-rifle][helm-org-rifle]] will also add a new action to
    the respective action menu.
 
-   See the function =sl-link-search-interface-ql= in the
-   =org-super-links-org-ql.el= file for an example.
+   See the functions =sl-get-location= (in the =org-super-links.el= file) or =sl-link-search-interface-ql= (in =org-super-links-org-ql.el=) for examples.
 
-   Default "=helm-org-ql="
+   Default is =sl-get-location=, which internally uses =org-refile-get-location=.
 
 * Tips
 
