@@ -139,7 +139,7 @@ This is called with point in the heading of the backlink.")
 
 (defun sl-link-postfix ()
   "Return an appropriate string based on variable `sl-link-postfix'."
-  (cond ((equal sl-link-postfix nil) "\n")
+  (cond ((equal sl-link-postfix nil) "")
 	((stringp sl-link-postfix) sl-link-postfix)
 	(t (funcall sl-link-postfix))))
 
@@ -199,7 +199,7 @@ be used instead of the default value."
 	(goto-char beg)
 	(insert (sl-link-prefix))
 	(org-insert-link nil link desc)
-	(insert (sl-link-postfix))
+	(insert (sl-link-postfix) "\n")
 	(org-indent-region beg (point)))
     (insert (sl-link-prefix))
     (org-insert-link nil link desc)
