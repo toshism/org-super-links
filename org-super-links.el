@@ -84,10 +84,13 @@ function will be called for every link.
 
 Default is the variable `org-make-link-desciption-function'.")
 
-(defvar sl-search-function "helm-org-ql"
+(defvar sl-search-function
+  (cond ((require 'helm-org-ql nil 'no-error) "helm-org-ql")
+	((require 'helm-org-rifle nil 'no-error) "helm-org-rifle")
+	(t 'sl-get-location))
   "The interface to use for finding target links.
 This can be a string with one of the values 'helm-org-ql',
-'helm-org-rifle', or a custom function.  If you provide a custom
+'helm-org-rifle', or a function.  If you provide a custom
 function it will be called with the `point` at the location the link
 should be inserted.  The only other requirement is that it should call
 the function `sl--insert-link' with a marker to the target link.  AKA
@@ -96,7 +99,14 @@ the place you want the backlink.
 Using 'helm-org-ql' or 'helm-org-rifle' will also add a new action to
 the respective action menu.
 
-See the function `sl-link-search-interface-ql' or for an example.")
+See the function `sl-link-search-interface-ql' or for an example.
+
+Default is set based on currently installed packages.  In order of priortity:
+- 'helm-org-ql'
+- 'helm-org-rifle'
+- `sl-get-location'
+
+`sl-get-location' internally uses `org-refile-get-location'.")
 
 (defvar sl-pre-link-hook nil
   "Hook called before storing the link on the link side.
@@ -108,6 +118,12 @@ This is called with point in the heading of the backlink.")
 
 (declare-function sl-link-search-interface-ql "ext:org-super-links-org-ql")
 (declare-function sl-link-search-interface-rifle "ext:org-super-links-org-rifle")
+
+(defun sl-get-location ()
+  "An `sl-search-function' that reuses the org-refile machinery."
+  (let ((target (org-refile-get-location "Super Link")))
+    (sl--insert-link (set-marker (make-marker) (car (cdddr target))
+				 (get-file-buffer (car (cdr target)))))))
 
 (defun sl-search-function ()
   "Call the search interface specified in `sl-search-function'."
