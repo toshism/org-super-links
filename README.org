@@ -173,7 +173,12 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
 
    See the functions =sl-get-location= (in the =org-super-links.el= file) or =sl-link-search-interface-ql= (in =org-super-links-org-ql.el=) for examples.
 
-   Default is =sl-get-location=, which internally uses =org-refile-get-location=.
+   Default is set based on currently installed packages. In order of priortity:
+   1. "helm-org-ql"
+   2. "helm-org-rifle"
+   3. =sl-get-location=
+
+   =sl-get-location= internally uses =org-refile-get-location=.
 
 * Tips
 
@@ -299,6 +304,8 @@ I'm considering adding some kind of index kind of thing in the spirit of zettelk
 
 * Changelog
 
+- remove dependency on helm
+  - add sl-get-location search function [[https://github.com/piater][@piater]]
 - add related into drawer option
 - add quick inserts
   - sl-quick-insert-drawer-link

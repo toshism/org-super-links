@@ -84,7 +84,10 @@ function will be called for every link.
 
 Default is the variable `org-make-link-desciption-function'.")
 
-(defvar sl-search-function 'sl-get-location
+(defvar sl-search-function
+  (cond ((require 'helm-org-ql nil 'no-error) "helm-org-ql")
+	((require 'helm-org-rifle nil 'no-error) "helm-org-rifle")
+	(t 'sl-get-location))
   "The interface to use for finding target links.
 This can be a string with one of the values 'helm-org-ql',
 'helm-org-rifle', or a function.  If you provide a custom
@@ -96,7 +99,14 @@ the place you want the backlink.
 Using 'helm-org-ql' or 'helm-org-rifle' will also add a new action to
 the respective action menu.
 
-See the function `sl-link-search-interface-ql' or for an example.")
+See the function `sl-link-search-interface-ql' or for an example.
+
+Default is set based on currently installed packages.  In order of priortity:
+- 'helm-org-ql'
+- 'helm-org-rifle'
+- `sl-get-location'
+
+`sl-get-location' internally uses `org-refile-get-location'.")
 
 (defvar sl-pre-link-hook nil
   "Hook called before storing the link on the link side.
