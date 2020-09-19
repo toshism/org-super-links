@@ -279,10 +279,10 @@ This combination of tags and index headings makes it easy to find things.
 (use-package org-super-links
   :quelpa (org-super-links :repo "toshism/org-super-links" :fetcher github :commit "develop")
   :bind (("C-c s s" . sl-link)
-	 ("C-c s l" . sl-store-link)
-	 ("C-c s C-l" . sl-insert-link)
-	 ("C-c s d" . sl-quick-insert-drawer-link)
-	 ("C-c s i" . sl-quick-insert-inline-link)
+         ("C-c s l" . sl-store-link)
+         ("C-c s C-l" . sl-insert-link)
+         ("C-c s d" . sl-quick-insert-drawer-link)
+         ("C-c s i" . sl-quick-insert-inline-link)
          ("C-c s C-d" . sl-delete-link))
   :config
   (setq sl-related-into-drawer t
