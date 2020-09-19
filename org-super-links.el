@@ -233,20 +233,6 @@ If point is in drawer, delete the entire line."
 	  (org-remove-empty-drawer-at (point)))
       (delete-region (org-element-property :begin link) (org-element-property :end link)))))
 
-(defun sl-delete-link ()
-  "Delete the link under cursor, and the corresponding reverse link.
-If no reverse link exists, just delete link at point."
-  (interactive)
-  (save-window-excursion
-    (with-current-buffer (current-buffer)
-      (save-excursion
-	(let ((id (org-id-get (point))))
-	  (org-open-at-point)
-	  (let ((link-element (sl--find-link id)))
-	    (if link-element
-		(sl--delete-link link-element)
-	      (message "No backlink found. Deleting active only.")))))))
-  (sl--delete-link (org-element-context)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; EXPERIMENTAL related into drawer
@@ -336,6 +322,23 @@ act like a normal link."
 	 (link (car forward-link))
 	 (description (sl-default-description-formatter link (cadr forward-link))))
     (sl-insert-relatedlink link description)))
+
+;;;###autoload
+(defun sl-delete-link ()
+  "Delete the link under cursor, and the corresponding reverse link.
+If no reverse link exists, just delete link at point.
+This works from either side, and deletes both sides of a link."
+  (interactive)
+  (save-window-excursion
+    (with-current-buffer (current-buffer)
+      (save-excursion
+	(let ((id (org-id-get (point))))
+	  (org-open-at-point)
+	  (let ((link-element (sl--find-link id)))
+	    (if link-element
+		(sl--delete-link link-element)
+	      (message "No backlink found. Deleting active only.")))))))
+  (sl--delete-link (org-element-context)))
 
 ;;;###autoload
 (defun sl-store-link (&optional GOTO KEYS)
