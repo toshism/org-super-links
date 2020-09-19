@@ -304,6 +304,7 @@ I'm considering adding some kind of index kind of thing in the spirit of zettelk
 
 * Changelog
 
+- fixed bug with org-capture prefix being swallowed (thanks! [[https://github.com/piater][@piater]])
 - remove dependency on helm
   - add sl-get-location search function [[https://github.com/piater][@piater]]
 - add related into drawer option

@@ -287,7 +287,7 @@ could possibly even be used to replace `org-store-link' IF
 function `sl-insert-link' is used to replace `org-insert-link'.  This
 has not been thoroughly tested outside of links to/form org files.
 GOTO and KEYS are unused."
-  (interactive)
+  (interactive "P")
   (ignore GOTO)
   (ignore KEYS)
   (save-excursion
