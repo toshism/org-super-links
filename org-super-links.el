@@ -325,7 +325,7 @@ act like a normal link."
 
 ;;;###autoload
 (defun sl-delete-link ()
-  "Delete the link under cursor, and the corresponding reverse link.
+  "Delete the link at point, and the corresponding reverse link.
 If no reverse link exists, just delete link at point.
 This works from either side, and deletes both sides of a link."
   (interactive)
