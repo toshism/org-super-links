@@ -74,6 +74,12 @@ Creates a link ignoring the =sl-related-into-drawer= and =sl-link-prefix= settin
 
 The inverse of =sl-quick-insert-inline-link=. Insert a link ignoring the =sl-related-into-drawer= and =sl-link-prefix= settings. Inserts a link using =sl-link-prefix-timestamp= for the prefix and either =sl-related-into-drawer= or =sl-related-drawer-default-name= for the drawer name. =sl-related-into-drawer= has precedence if it's set to a string.
 
+*** sl-delete-link
+
+Delete the link at point, and the corresponding reverse link.
+If no reverse link exists, just delete link at point.
+This works from either side, and deletes both sides of a link.
+
 * Configuration
 
 The variables below allow quite a bit of flexibility to allow you to fit =org-super-links= into your workflow. None of these are required. My personal config is below under Tips
@@ -273,10 +279,11 @@ This combination of tags and index headings makes it easy to find things.
 (use-package org-super-links
   :quelpa (org-super-links :repo "toshism/org-super-links" :fetcher github :commit "develop")
   :bind (("C-c s s" . sl-link)
-	 ("C-c s l" . sl-store-link)
-	 ("C-c s C-l" . sl-insert-link)
-	 ("C-c s d" . sl-quick-insert-drawer-link)
-	 ("C-c s i" . sl-quick-insert-inline-link))
+         ("C-c s l" . sl-store-link)
+         ("C-c s C-l" . sl-insert-link)
+         ("C-c s d" . sl-quick-insert-drawer-link)
+         ("C-c s i" . sl-quick-insert-inline-link)
+         ("C-c s C-d" . sl-delete-link))
   :config
   (setq sl-related-into-drawer t
   	sl-link-prefix 'sl-link-prefix-timestamp))
@@ -304,6 +311,7 @@ I'm considering adding some kind of index kind of thing in the spirit of zettelk
 
 * Changelog
 
+- add delete link
 - fixed bug with org-capture prefix being swallowed (thanks! [[https://github.com/piater][@piater]])
 - remove dependency on helm
   - add sl-get-location search function [[https://github.com/piater][@piater]]
