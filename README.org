@@ -229,7 +229,7 @@ Sometimes heading titles can get a bit long. You can define a custom function to
   (defun sl-truncate-description (link desc)
     (truncate-string-to-width desc 20))
 
-  (setq sl-default-description-formatter 'sl-truncate-description))
+  (setq sl-default-description-formatter 'sl-truncate-description)
 #+end_src
 
 The default value of =sl-default-description-formatter= is set to =org-make-link-description= so you can also set that to apply the changes to all org-mode links globally.
