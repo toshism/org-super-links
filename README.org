@@ -315,6 +315,12 @@ I use something like this in my theme.
 
 That will make the drawer quite small when collapsed but the text inside full size when expanded.
 
+*** org-export-with-broken-links
+
+If you export subheadings from your org file that have links/backlinks you may want to set =org-export-with-broken-links= to =t=. Otherwise you may see an error like
+```user-error: Unable to resolve link: "*Heading with a backlink using fragile links"```.
+See issue [[https://github.com/toshism/org-super-links/issues/22][issue #22]]
+
 * Notes
 
 This is still kind of in flux, so things could change... It's starting to settle down, but I'm still playing around with the idea a bit. If you want something that will stay reasonably stable pick a tag.
