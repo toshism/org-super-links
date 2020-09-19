@@ -6,6 +6,19 @@ I'm trying to keep this as flexible as possible. There are a few different ways 
 
 I'm still kind of fleshing out the idea, but I think I like it.
 
+* Screenshots
+
+Everybody loves screenshots, right?
+
+sl-link
+[[images/sl-link.gif]]
+
+related drawer
+[[images/related-drawer.gif]]
+
+capture template
+[[images/capture-template.gif]]
+
 * Super basic example
 
 View the org source to get a better idea of how this looks.
