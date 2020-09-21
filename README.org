@@ -53,7 +53,7 @@ This needs better instructions, but here's something basic at least for now. Onc
 Using [[https://github.com/quelpa/quelpa][quelpa]] makes it easy. Example basic configuration:
 #+begin_src elisp
   (use-package org-super-links
-    :quelpa (org-super-links :repo "toshism/org-super-links" :fetcher github :commit "0.2")
+    :quelpa (org-super-links :repo "toshism/org-super-links" :fetcher github :commit "0.3")
     :bind (("C-c s s" . sl-link)
 	   ("C-c s l" . sl-store-link)
 	   ("C-c s C-l" . sl-insert-link)))
