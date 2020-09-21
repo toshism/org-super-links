@@ -3,7 +3,7 @@
 ;; Copyright (C) 2020  tosh
 
 ;; Author: tosh <tosh.lyons@gmail.com>
-;; Version: 0.2
+;; Version: 0.3
 ;; Package-Requires: (org helm-org-ql)
 ;; URL: https://github.com/toshism/org-super-links
 ;; Keywords: convenience, hypermedia
@@ -50,21 +50,20 @@ Else just return `org-agenda-files`"
       (cons (buffer-file-name) (org-agenda-files))
     (org-agenda-files)))
 
+
 (defun sl-link-search-interface-ql ()
   "Setup the helm-org-ql search interface."
   (add-to-list 'helm-org-ql-actions '("super-link-temp" . sl-insert-link-org-ql-action) nil)
   (helm-org-ql (sl-get-search-buffers))
   (pop helm-org-ql-actions))
 
-;;;###autoload
-(add-to-list 'helm-org-ql-actions '("Super Link" . sl-insert-link-org-ql-action) t)
+(with-eval-after-load "helm-org-ql"
+  (add-to-list 'helm-org-ql-actions '("Super Link" . sl-insert-link-org-ql-action) t))
 
 (defun sl-insert-link-org-ql-action (marker)
   "Wrapper for `sl--insert-link` for org-ql integration.
 MARKER is the point at first char in the selected heading."
-  (let ((buffer (if marker (marker-buffer marker) nil))
-	(pos (if marker (marker-position marker) nil)))
-    (sl--insert-link buffer pos)))
+  (sl--insert-link marker))
 
 (provide 'org-super-links-org-ql)
 

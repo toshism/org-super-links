@@ -3,7 +3,7 @@
 ;; Copyright (C) 2020  tosh
 
 ;; Author: tosh <tosh.lyons@gmail.com>
-;; Version: 0.2
+;; Version: 0.3
 ;; Package-Requires: (org helm-org-rifle)
 ;; URL: https://github.com/toshism/org-super-links
 ;; Keywords: convenience, hypermedia
@@ -39,21 +39,19 @@
   "Wrapper for `sl--insert-link` for helm/rifle integration.
 CANDIDATE is a helm candidate."
   (let ((buffer (car candidate))
-	(pos (cdr candidate)))
-    (sl--insert-link buffer pos)))
+	(pos (cdr candidate))
+	(target (make-marker)))
+    (set-marker target pos buffer)
+    (sl--insert-link target)))
 
-;;;###autoload
-(add-to-list 'helm-org-rifle-actions '("Super Link" . sl-insert-link-rifle-action) t)
+(with-eval-after-load "helm-org-ql"
+  (add-to-list 'helm-org-rifle-actions '("Super Link" . sl-insert-link-rifle-action) t))
 
 (defun sl-link-search-interface-rifle ()
   "Search interface for helm-rifle."
   (add-to-list 'helm-org-rifle-actions '("super-link-temp" . sl-insert-link-rifle-action) nil)
   (helm-org-rifle)
   (pop helm-org-rifle-actions))
-
-;;;###autoload
-(add-to-list 'helm-org-rifle-actions '("Super Link" . sl-insert-link-rifle-action) t)
-
 
 (provide 'org-super-links-org-rifle)
 

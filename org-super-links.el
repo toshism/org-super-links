@@ -3,7 +3,7 @@
 ;; Copyright (C) 2020  tosh
 
 ;; Author: tosh <tosh.lyons@gmail.com>
-;; Version: 0.2
+;; Version: 0.3
 ;; Package-Requires: (org)
 ;; URL: https://github.com/toshism/org-super-links
 ;; Keywords: convenience, hypermedia
@@ -52,6 +52,17 @@ an inactive timestamp formatted according to the variable
 This can be a string, nil, or a function that takes no arguments and
 returns a string")
 
+(defvar sl-related-into-drawer nil
+    "Controls how/where to insert links.
+If non-nil a drawer will be created and links inserted there.  The
+default is `sl-related-drawer-default-name'.  If this is set to a
+string a drawer will be created using that string.  For example LINKS.
+If nil links will just be inserted at point.")
+
+(defvar sl-related-drawer-default-name "RELATED"
+  "Default name to use for link drawer if `sl-related-into-drawer' is 't'.
+See `sl-related-into-drawer' for more info.")
+
 (defvar sl-link-prefix nil
   "Prefix to insert before the link.
 This can be a string, nil, or a function that takes no arguments and
@@ -73,22 +84,46 @@ function will be called for every link.
 
 Default is the variable `org-make-link-desciption-function'.")
 
-(defvar sl-search-function "helm-org-ql"
+(defvar sl-search-function
+  (cond ((require 'helm-org-ql nil 'no-error) "helm-org-ql")
+	((require 'helm-org-rifle nil 'no-error) "helm-org-rifle")
+	(t 'sl-get-location))
   "The interface to use for finding target links.
 This can be a string with one of the values 'helm-org-ql',
-'helm-org-rifle', or a custom function.  If you provide a custom
+'helm-org-rifle', or a function.  If you provide a custom
 function it will be called with the `point` at the location the link
 should be inserted.  The only other requirement is that it should call
-the function `sl--insert-link' with the `buffer` and `pos` of the
-target link.  AKA the place you want the backlink.
+the function `sl--insert-link' with a marker to the target link.  AKA
+the place you want the backlink.
 
 Using 'helm-org-ql' or 'helm-org-rifle' will also add a new action to
 the respective action menu.
 
-See the function `sl-link-search-interface-ql' or for an example.")
+See the function `sl-link-search-interface-ql' or for an example.
+
+Default is set based on currently installed packages.  In order of priortity:
+- 'helm-org-ql'
+- 'helm-org-rifle'
+- `sl-get-location'
+
+`sl-get-location' internally uses `org-refile-get-location'.")
+
+(defvar sl-pre-link-hook nil
+  "Hook called before storing the link on the link side.
+This is called with point at the location where it was called.")
+
+(defvar sl-pre-backlink-hook nil
+  "Hook called before storing the link on the backlink side.
+This is called with point in the heading of the backlink.")
 
 (declare-function sl-link-search-interface-ql "ext:org-super-links-org-ql")
 (declare-function sl-link-search-interface-rifle "ext:org-super-links-org-rifle")
+
+(defun sl-get-location ()
+  "An `sl-search-function' that reuses the org-refile machinery."
+  (let ((target (org-refile-get-location "Super Link")))
+    (sl--insert-link (set-marker (make-marker) (car (cdddr target))
+				 (get-file-buffer (car (cdr target)))))))
 
 (defun sl-search-function ()
   "Call the search interface specified in `sl-search-function'."
@@ -120,7 +155,7 @@ See the function `sl-link-search-interface-ql' or for an example.")
 
 (defun sl-link-postfix ()
   "Return an appropriate string based on variable `sl-link-postfix'."
-  (cond ((equal sl-link-postfix nil) "\n")
+  (cond ((equal sl-link-postfix nil) "")
 	((stringp sl-link-postfix) sl-link-postfix)
 	(t (funcall sl-link-postfix))))
 
@@ -155,6 +190,108 @@ be used instead of the default value."
 	  ((stringp sl-backlink-into-drawer) sl-backlink-into-drawer)
 	  (sl-backlink-into-drawer "BACKLINKS"))))
 
+;; delete related functions
+(defun sl--find-link (id)
+  "Return link element for ID."
+  (sl--org-narrow-to-here)
+  (let ((link
+	 (org-element-map (org-element-parse-buffer) 'link
+	   (lambda (link)
+	     (when (string= (org-element-property :path link) id)
+	       link)))))
+    (widen)
+    (if (> (length link) 1)
+	(error "Multiple links found. Cancelling delete")
+      (car link))))
+
+(defun sl--org-narrow-to-here ()
+  "Narrow to current heading, excluding subheadings."
+  (org-narrow-to-subtree)
+  (save-excursion
+    (org-next-visible-heading 1)
+    (narrow-to-region (point-min) (point))))
+
+
+(defun sl--in-drawer ()
+  "Return nil if point is not in a drawer.
+Return element at point is in a drawer."
+  (let ((element (org-element-at-point)))
+    (while (and element
+		(not (memq (org-element-type element) '(drawer property-drawer))))
+      (setq element (org-element-property :parent element)))
+    element))
+
+
+(defun sl--delete-link (link)
+  "Delete the LINK.
+If point is in drawer, delete the entire line."
+  (save-excursion
+    (goto-char (org-element-property :begin link))
+    (if (sl--in-drawer)
+	(progn
+	  (kill-whole-line 1)
+	  (org-remove-empty-drawer-at (point)))
+      (delete-region (org-element-property :begin link) (org-element-property :end link)))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; EXPERIMENTAL related into drawer
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun sl-related-into-drawer ()
+  "Name of the realted drawer, as a string, or nil.
+This is the value of `sl-related-into-drawer'.  However, if the
+current entry has or inherits a RELATED_INTO_DRAWER property, it will
+be used instead of the default value."
+  (let ((p (org-entry-get nil "RELATED_INTO_DRAWER" 'inherit t)))
+    (cond ((equal p "nil") nil)
+	  ((equal p "t") sl-related-drawer-default-name)
+	  ((stringp p) p)
+	  (p sl-related-drawer-default-name)
+	  ((stringp sl-related-into-drawer) sl-related-into-drawer)
+	  (sl-related-into-drawer sl-related-drawer-default-name))))
+
+(defun sl-insert-relatedlink (link desc)
+  "LINK DESC related experiment."
+  (if (sl-related-into-drawer)
+      (let* ((org-log-into-drawer (sl-related-into-drawer))
+	     (beg (org-log-beginning t)))
+	(goto-char beg)
+	(insert (sl-link-prefix))
+	(org-insert-link nil link desc)
+	(insert (sl-link-postfix) "\n")
+	(org-indent-region beg (point)))
+    (insert (sl-link-prefix))
+    (org-insert-link nil link desc)
+    (insert (sl-link-postfix))))
+
+(defun sl-link-prefix-timestamp ()
+  "Return the default prefix string for a backlink.
+Inactive timestamp formatted according to `org-time-stamp-formats' and
+a separator ' -> '."
+  (let* ((time-format (substring (cdr org-time-stamp-formats) 1 -1))
+	 (time-stamp (format-time-string time-format (current-time))))
+    (format "[%s] -> "
+	    time-stamp)))
+
+(defun sl-quick-insert-drawer-link ()
+  (interactive)
+  ;; how to handle prefix here?
+  (let ((sl-related-into-drawer (or sl-related-into-drawer t))
+	(sl-link-prefix 'sl-link-prefix-timestamp))
+    (sl-link)))
+
+(defun sl-quick-insert-inline-link ()
+  (interactive)
+  ;; how to handle prefix here?
+  (let ((sl-related-into-drawer nil)
+	(sl-link-prefix nil))
+    (sl-link)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; /EXPERIMENTAL related into drawer
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun sl-insert-backlink (link desc)
   "Insert backlink to LINK with DESC.
 Where the backlink is placed is determined by the variable `sl-backlink-into-drawer'."
@@ -163,32 +300,72 @@ Where the backlink is placed is determined by the variable `sl-backlink-into-dra
 	 (beg (org-log-beginning t)))
     (goto-char beg)
     (insert (sl-backlink-prefix))
-    (insert (format "[[%s][%s]]"
-		    link
-		    description))
+    (org-insert-link nil link description)
     (insert (sl-backlink-postfix))
     (org-indent-region beg (point))))
 
-(defun sl--insert-link (buffer pos)
-  "Insert link to BUFFER POS at current `point`, and create backlink to here.
-Only create backlinks in files in `org-mode', otherwise just act like a
-normal link."
+(defun sl--insert-link (target &optional no-forward)
+  "Insert link to marker TARGET at current `point`, and create backlink to here.
+Only create backlinks in files in `org-mode' or a derived mode, otherwise just
+act like a normal link.
+
+If NO-FORWARD is non-nil skip creating the forward link.  Currently
+only used when converting a link."
+  (run-hooks 'sl-pre-link-hook)
   (call-interactively 'org-store-link)
   (let ((back-link (pop org-stored-links)))
-    (with-current-buffer buffer
+    (with-current-buffer (marker-buffer target)
       (save-excursion
-	(goto-char pos)
-	(when (string-equal major-mode "org-mode")
+	(goto-char (marker-position target))
+	(run-hooks 'sl-pre-backlink-hook)
+	(when (derived-mode-p 'org-mode)
 	  (sl-insert-backlink (car back-link) (cadr back-link)))
 	(call-interactively 'org-store-link))))
-  (let* ((forward-link (pop org-stored-links))
-	 (link (car forward-link))
-	 (description (sl-default-description-formatter link (cadr forward-link))))
-    (insert (sl-link-prefix))
-    (insert (format "[[%s][%s]]"
-		    link
-		    description))
-    (insert (sl-link-postfix))))
+  (unless no-forward
+    (let* ((forward-link (pop org-stored-links))
+	   (link (car forward-link))
+	   (description (sl-default-description-formatter link (cadr forward-link))))
+      (sl-insert-relatedlink link description))))
+
+;;;###autoload
+(defun sl-convert-link-to-super (arg)
+  "Convert a normal org-mode link at `point' to super link.  If
+`sl-related-into-drawer' is non-nil move the link into drawer.
+
+When called interactively with a `C-u' prefix argument ignore
+`sl-related-into-drawer' configuration and do not modify existing
+link."
+  (interactive "P")
+  (let ((from-m (point-marker))
+	(target (save-window-excursion
+		  (with-current-buffer (current-buffer)
+		    (save-excursion
+		      (org-open-at-point)
+		      (point-marker))))))
+    (sl--insert-link target arg)
+    (goto-char (marker-position from-m)))
+
+  (when (and (not arg) (sl-related-into-drawer))
+    (let ((begin (org-element-property :begin (org-element-context)))
+	  (end (org-element-property :end (org-element-context))))
+      (delete-region begin end))))
+
+;;;###autoload
+(defun sl-delete-link ()
+  "Delete the link at point, and the corresponding reverse link.
+If no reverse link exists, just delete link at point.
+This works from either side, and deletes both sides of a link."
+  (interactive)
+  (save-window-excursion
+    (with-current-buffer (current-buffer)
+      (save-excursion
+	(let ((id (org-id-get (point))))
+	  (org-open-at-point)
+	  (let ((link-element (sl--find-link id)))
+	    (if link-element
+		(sl--delete-link link-element)
+	      (message "No backlink found. Deleting active only.")))))))
+  (sl--delete-link (org-element-context)))
 
 ;;;###autoload
 (defun sl-store-link (&optional GOTO KEYS)
@@ -198,11 +375,20 @@ could possibly even be used to replace `org-store-link' IF
 function `sl-insert-link' is used to replace `org-insert-link'.  This
 has not been thoroughly tested outside of links to/form org files.
 GOTO and KEYS are unused."
-  (interactive)
+  (interactive "P")
   (ignore GOTO)
   (ignore KEYS)
-  (point-to-register 'sl-link)
-  (message "Link copied"))
+  (save-excursion
+    ;; this is a hack. if the point is at the first char of a heading
+    ;; the marker is not updated as expected when text is inserted
+    ;; above the heading. for exapmle a capture template inserted
+    ;; above. that results in the link being to the heading above the
+    ;; expected heading.
+    (goto-char (line-end-position))
+    (let ((c1 (make-marker)))
+      (set-marker c1 (point) (current-buffer))
+      (set-register ?^ c1)
+      (message "Link copied"))))
 
 ;; not sure if this should be autoloaded or left to config?
 ;;;###autoload
@@ -212,13 +398,11 @@ GOTO and KEYS are unused."
 (defun sl-insert-link ()
   "Insert a super link from the register."
   (interactive)
-  (let* ((marker (get-register 'sl-link))
-	 (buffer (if marker (marker-buffer marker) nil))
-	 (pos (if marker (marker-position marker) nil)))
-    (if (and buffer pos)
+  (let* ((target (get-register ?^)))
+    (if target
 	(progn
-	  (sl--insert-link buffer pos)
-	  (set-register 'sl-link nil))
+	  (sl--insert-link target)
+	  (set-register ?^ nil))
       (message "No link to insert!"))))
 
 ;;;###autoload
