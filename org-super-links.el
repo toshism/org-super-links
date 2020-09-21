@@ -304,10 +304,13 @@ Where the backlink is placed is determined by the variable `sl-backlink-into-dra
     (insert (sl-backlink-postfix))
     (org-indent-region beg (point))))
 
-(defun sl--insert-link (target)
+(defun sl--insert-link (target &optional no-forward)
   "Insert link to marker TARGET at current `point`, and create backlink to here.
 Only create backlinks in files in `org-mode' or a derived mode, otherwise just
-act like a normal link."
+act like a normal link.
+
+If NO-FORWARD is non-nil skip creating the forward link.  Currently
+only used when converting a link."
   (run-hooks 'sl-pre-link-hook)
   (call-interactively 'org-store-link)
   (let ((back-link (pop org-stored-links)))
@@ -315,13 +318,37 @@ act like a normal link."
       (save-excursion
 	(goto-char (marker-position target))
 	(run-hooks 'sl-pre-backlink-hook)
-  (when (derived-mode-p 'org-mode)
+	(when (derived-mode-p 'org-mode)
 	  (sl-insert-backlink (car back-link) (cadr back-link)))
 	(call-interactively 'org-store-link))))
-  (let* ((forward-link (pop org-stored-links))
-	 (link (car forward-link))
-	 (description (sl-default-description-formatter link (cadr forward-link))))
-    (sl-insert-relatedlink link description)))
+  (unless no-forward
+    (let* ((forward-link (pop org-stored-links))
+	   (link (car forward-link))
+	   (description (sl-default-description-formatter link (cadr forward-link))))
+      (sl-insert-relatedlink link description))))
+
+;;;###autoload
+(defun sl-convert-link-to-super (arg)
+  "Convert a normal org-mode link at `point' to super link.  If
+`sl-related-into-drawer' is non-nil move the link into drawer.
+
+When called interactively with a `C-u' prefix argument ignore
+`sl-related-into-drawer' configuration and do not modify existing
+link."
+  (interactive "P")
+  (let ((from-m (point-marker))
+	(target (save-window-excursion
+		  (with-current-buffer (current-buffer)
+		    (save-excursion
+		      (org-open-at-point)
+		      (point-marker))))))
+    (sl--insert-link target arg)
+    (goto-char (marker-position from-m)))
+
+  (when (and (not arg) (sl-related-into-drawer))
+    (let ((begin (org-element-property :begin (org-element-context)))
+	  (end (org-element-property :end (org-element-context))))
+      (delete-region begin end))))
 
 ;;;###autoload
 (defun sl-delete-link ()
