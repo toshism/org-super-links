@@ -4,7 +4,7 @@ Create links with auto backlinks is the general idea.
 
 I'm trying to keep this as flexible as possible. There are a few different ways to use this to support different use cases and workflows. See [[#usage][Usage]] for a more detailed explanation.
 
-I also want to keep this as close to pure org-mode as possible. No external db, no functions required for reading, etc. This makes it much more usable for me on my phone. Using [[https://beorgapp.com/][beorg]] or [[https://organice.200ok.ch/][organice]] for example. It also allows the links to function as normal for exporting and things like that. It's just pure org.
+I also want to keep this as close to pure org-mode as possible. No external db, no functions required for reading, etc. It should function as just a regular org-mode file. This makes it much more usable for me on my phone. Using [[https://beorgapp.com/][beorg]] or [[https://organice.200ok.ch/][organice]] for example. It also allows the links to function as normal for exporting and things like that. It's just pure org.
 
 I'm still kind of fleshing out the idea, but I think I like it.
 
@@ -50,7 +50,7 @@ This has a link pointing to the heading above
 
 This needs better instructions, but here's something basic at least for now. Once I'm reasonably happy with the interface etc. I'll try to get this on melpa.
 
-This isn't on melpa, but using [[https://github.com/quelpa/quelpa][quelpa]] makes it easy. Example basic configuration:
+Using [[https://github.com/quelpa/quelpa][quelpa]] makes it easy. Example basic configuration:
 #+begin_src elisp
   (use-package org-super-links
     :quelpa (org-super-links :repo "toshism/org-super-links" :fetcher github :commit "0.2")
@@ -341,9 +341,12 @@ This is still kind of in flux, so things could change... It's starting to settle
 
 * Changelog
 
+** 0.3
+
+[2020-09-21]
+
 - add sl-convert-link-to-super
 - add delete link
-- fixed bug with org-capture prefix being swallowed (thanks! [[https://github.com/piater][@piater]])
 - remove dependency on helm
   - add sl-get-location search function [[https://github.com/piater][@piater]]
 - add related into drawer option
@@ -358,6 +361,7 @@ This is still kind of in flux, so things could change... It's starting to settle
 - support backlinks in org derived modes from [[https://github.com/philScholl][@philScholl]]
 
 Bugfixes
+- fixed bug with org-capture prefix being swallowed (thanks! [[https://github.com/piater][@piater]])
 - respect org-mode link configurations
 - fix possible incorrect link location after buffer modified by hook(s)
 - fix void-variable helm-org-ql-actions bug
