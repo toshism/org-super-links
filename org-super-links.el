@@ -359,51 +359,55 @@ This works from either side, and deletes both sides of a link."
   (save-window-excursion
     (with-current-buffer (current-buffer)
       (save-excursion
-	(let ((id (org-id-get (point))))
-	  (org-open-at-point)
-	  (let ((link-element (sl--find-link id)))
-	    (if link-element
-		(sl--delete-link link-element)
-	      (message "No backlink found. Deleting active only.")))))))
+	    (let ((id (org-id-get (point))))
+	      (org-open-at-point)
+	      (let ((link-element (sl--find-link id)))
+	        (if link-element
+		        (sl--delete-link link-element)
+	          (message "No backlink found. Deleting active only.")))))))
   (sl--delete-link (org-element-context)))
 
 ;;;###autoload
-(defun sl-store-link (&optional GOTO KEYS)
+(defun sl-store-link (&optional arg GOTO KEYS)
   "Store a point to the register for use in function `sl-insert-link'.
 This is primarily intended to be called before `org-capture', but
 could possibly even be used to replace `org-store-link' IF
 function `sl-insert-link' is used to replace `org-insert-link'.  This
-has not been thoroughly tested outside of links to/form org files.
+will use org-store-link on buffers not derived from org-mode.
 GOTO and KEYS are unused."
   (interactive "P")
   (ignore GOTO)
   (ignore KEYS)
-  (save-excursion
-    ;; this is a hack. if the point is at the first char of a heading
-    ;; the marker is not updated as expected when text is inserted
-    ;; above the heading. for exapmle a capture template inserted
-    ;; above. that results in the link being to the heading above the
-    ;; expected heading.
-    (goto-char (line-end-position))
-    (let ((c1 (make-marker)))
-      (set-marker c1 (point) (current-buffer))
-      (set-register ?^ c1)
-      (message "Link copied"))))
+  (if (and (not arg) (derived-mode-p 'org-mode))
+      (progn
+        (save-excursion
+          ;; this is a hack. if the point is at the first char of a heading
+          ;; the marker is not updated as expected when text is inserted
+          ;; above the heading. for exapmle a capture template inserted
+          ;; above. that results in the link being to the heading above the
+          ;; expected heading.
+          (goto-char (line-end-position))
+          (let ((c1 (make-marker)))
+            (set-marker c1 (point) (current-buffer))
+            (set-register ?^ c1)
+            (message "Link copied"))))
+    (funcall #'org-store-link arg t)))
 
 ;; not sure if this should be autoloaded or left to config?
 ;;;###autoload
 (advice-add 'org-capture :before 'sl-store-link)
 
 ;;;###autoload
-(defun sl-insert-link ()
-  "Insert a super link from the register."
-  (interactive)
+(defun sl-insert-link (&optional arg loc desc)
+  "Insert a super link from the register.
+Use 'org-insert-link' if no sl-link target."
+  (interactive "P")
   (let* ((target (get-register ?^)))
     (if target
-	(progn
-	  (sl--insert-link target)
-	  (set-register ?^ nil))
-      (message "No link to insert!"))))
+	    (progn
+	      (sl--insert-link target)
+	      (set-register ?^ nil))
+      (funcall #'org-insert-link arg loc desc))))
 
 ;;;###autoload
 (defun sl-link ()
