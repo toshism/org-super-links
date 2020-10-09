@@ -2,7 +2,7 @@
 
 Create links with auto backlinks is the general idea.
 
-I'm trying to keep this as flexible as possible. There are a few different ways to use this to support different use cases and workflows. See [[#usage][Usage]] for a more detailed explanation.
+I'm trying to keep this as flexible as possible. There are a few different ways to use this to support different use cases and workflows. See [[#usage][Usage]] for a more detailed explanation. There are also a few tips and useful functions on the [[https://github.com/toshism/org-super-links/wiki/Tips][wiki tips page]].
 
 I also want to keep this as close to pure org-mode as possible. No external db, no functions required for reading, etc. It should function as just a regular org-mode file. This makes it much more usable for me on my phone. Using [[https://beorgapp.com/][beorg]] or [[https://organice.200ok.ch/][organice]] for example. It also allows the links to function as normal for exporting and things like that. It's just pure org.
 
