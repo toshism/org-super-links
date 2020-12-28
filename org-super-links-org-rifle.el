@@ -4,7 +4,7 @@
 
 ;; Author: tosh <tosh.lyons@gmail.com>
 ;; Version: 0.3
-;; Package-Requires: (org helm-org-rifle)
+;; Package-Requires: ((emacs "26.1") (helm-org-rifle "0.1"))
 ;; URL: https://github.com/toshism/org-super-links
 ;; Keywords: convenience, hypermedia
 
@@ -29,27 +29,24 @@
 
 ;;; Code:
 
-(defvar helm-org-rifle-actions)
-(declare-function sl--insert-link "org-super-links")
+(declare-function org-super-links--insert-link "org-super-links")
 (declare-function helm-org-rifle "ext:helm-org-rifle")
 
-(defvar helm-org-rifle-actions)
-
-(defun sl-insert-link-rifle-action (candidate)
-  "Wrapper for `sl--insert-link` for helm/rifle integration.
+(defun org-super-links-org-rifle-insert-link-rifle-action (candidate)
+  "Wrapper for `org-super-links--insert-link` for helm/rifle integration.
 CANDIDATE is a helm candidate."
   (let ((buffer (car candidate))
 	(pos (cdr candidate))
 	(target (make-marker)))
     (set-marker target pos buffer)
-    (sl--insert-link target)))
+    (org-super-links--insert-link target)))
 
-(with-eval-after-load "helm-org-ql"
-  (add-to-list 'helm-org-rifle-actions '("Super Link" . sl-insert-link-rifle-action) t))
+(with-eval-after-load "helm-org-rifle"
+  (add-to-list 'helm-org-rifle-actions '("Super Link" . org-super-links-org-rifle-insert-link-action) t))
 
-(defun sl-link-search-interface-rifle ()
+(defun org-super-links-org-rifle-link-search-interface ()
   "Search interface for helm-rifle."
-  (add-to-list 'helm-org-rifle-actions '("super-link-temp" . sl-insert-link-rifle-action) nil)
+  (add-to-list 'helm-org-rifle-actions '("super-link-temp" . org-super-links-org-rifle-insert-link-action) nil)
   (helm-org-rifle)
   (pop helm-org-rifle-actions))
 
