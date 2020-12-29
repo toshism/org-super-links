@@ -298,7 +298,8 @@ Where the backlink is placed is determined by the variable `sl-backlink-into-dra
   (let* ((org-log-into-drawer (sl-backlink-into-drawer))
 	 (description (sl-default-description-formatter link desc))
 	 (beg (org-log-beginning t)))
-    (goto-char beg)
+    (when org-log-into-drawer
+      (goto-char beg))
     (insert (sl-backlink-prefix))
     (org-insert-link nil link description)
     (insert (sl-backlink-postfix))
