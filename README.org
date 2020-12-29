@@ -337,6 +337,9 @@ This is still kind of in flux, so things could change... It's starting to settle
 
 * Changelog
 
+Bugfixes
+- fixed incorrect link when backlink-into-drawer nil
+
 ** 0.3
 
 [2020-09-21]
