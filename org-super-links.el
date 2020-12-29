@@ -298,10 +298,9 @@ Where the backlink is placed is determined by the variable `org-super-links-back
   (let* ((org-log-into-drawer (org-super-links-backlink-into-drawer))
 	 (description (org-super-links-default-description-formatter link desc))
 	 (beg (org-log-beginning t)))
-    (when org-log-into-drawer
-      (goto-char beg))
+    (goto-char beg)
     (insert (org-super-links-backlink-prefix))
-    (org-insert-link nil link description)
+    (insert (org-link-make-string link desc))
     (insert (org-super-links-backlink-postfix))
     (org-indent-region beg (point))))
 
