@@ -4,7 +4,7 @@
 
 ;; Author: tosh <tosh.lyons@gmail.com>
 ;; Version: 0.3
-;; Package-Requires: ((emacs "26.1"))
+;; Package-Requires: ((emacs "27.1"))
 ;; URL: https://github.com/toshism/org-super-links
 ;; Keywords: convenience, hypermedia
 
