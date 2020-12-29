@@ -298,11 +298,26 @@ Where the backlink is placed is determined by the variable `org-super-links-back
   (let* ((org-log-into-drawer (org-super-links-backlink-into-drawer))
 	 (description (org-super-links-default-description-formatter link desc))
 	 (beg (org-log-beginning t)))
-    (goto-char beg)
+    (when org-log-into-drawer
+      (goto-char beg))
     (insert (org-super-links-backlink-prefix))
     (org-insert-link nil link description)
     (insert (org-super-links-backlink-postfix))
     (org-indent-region beg (point))))
+
+(defun org-super-links-links-action (marker hooks)
+  (with-current-buffer (marker-buffer marker)
+    (save-excursion
+      (goto-char (marker-position marker))
+      (run-hooks hooks)
+      (call-interactively 'org-store-link)
+      (pop org-stored-links))))
+
+(defun org-super-links-link-builder (link)
+  (let* ((link-ref (car link))
+	 (pre-desc (cadr link))
+	 (description (org-super-links-default-description-formatter link-ref pre-desc)))
+    (cons link-ref description)))
 
 (defun org-super-links--insert-link (target &optional no-forward)
   "Insert link to marker TARGET at current `point`, and create backlink to here.
@@ -311,21 +326,22 @@ act like a normal link.
 
 If NO-FORWARD is non-nil skip creating the forward link.  Currently
 only used when converting a link."
-  (run-hooks 'org-super-links-pre-link-hook)
-  (call-interactively 'org-store-link)
-  (let ((back-link (pop org-stored-links)))
+  (let* ((source (point-marker))
+	 (source-link (org-super-links-links-action source 'org-super-links-pre-link-hook))
+	 (target-link (org-super-links-links-action target 'org-super-links-pre-backlink-hook))
+	 (source-formatted-link (org-super-links-link-builder source-link))
+	 (target-formatted-link (org-super-links-link-builder target-link)))
     (with-current-buffer (marker-buffer target)
       (save-excursion
 	(goto-char (marker-position target))
-	(run-hooks 'org-super-links-pre-backlink-hook)
 	(when (derived-mode-p 'org-mode)
-	  (org-super-links-insert-backlink (car back-link) (cadr back-link)))
-	(call-interactively 'org-store-link))))
-  (unless no-forward
-    (let* ((forward-link (pop org-stored-links))
-	   (link (car forward-link))
-	   (description (org-super-links-default-description-formatter link (cadr forward-link))))
-      (org-super-links-insert-relatedlink link description))))
+	  (org-super-links-insert-backlink (car source-formatted-link) (cdr source-formatted-link)))))
+    (unless no-forward
+      (with-current-buffer (marker-buffer source)
+	(save-excursion
+	  (goto-char (marker-position source))
+	  (org-super-links-insert-relatedlink (car target-formatted-link) (cdr target-formatted-link)))))))
+
 
 ;;;###autoload
 (defun org-super-links-convert-link-to-super (arg)
