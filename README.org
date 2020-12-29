@@ -1,5 +1,7 @@
 #+TITLE: org-super-links
 
+*NOTE: The package prefix was changed from =sl-= to =org-super-links-=. You will need to update any configuration or keybindings you have made!* This is already on =develop= branch and will be part of the =0.4= release.
+
 Create links with auto backlinks is the general idea.
 
 I'm trying to keep this as flexible as possible. There are a few different ways to use this to support different use cases and workflows. See [[#usage][Usage]] for a more detailed explanation. There are also a few tips and useful functions on the [[https://github.com/toshism/org-super-links/wiki/Tips][wiki tips page]].
