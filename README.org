@@ -338,6 +338,8 @@ See [[https://github.com/toshism/org-super-links/issues/22][issue #22]]
 This is still kind of in flux, so things could change... It's starting to settle down, but I'm still playing around with the idea a bit. If you want something that will stay reasonably stable pick a tag.
 
 * Changelog
+** 0.4
+
 - refactor org-super-links--insert-link
 - change prefix from sl- to org-super-links-
 
