@@ -4,7 +4,7 @@
 
 ;; Author: tosh <tosh.lyons@gmail.com>
 ;; Version: 0.3
-;; Package-Requires: (org helm-org-ql)
+;; Package-Requires: ((emacs "26.1") (helm-org-ql "0.5"))
 ;; URL: https://github.com/toshism/org-super-links
 ;; Keywords: convenience, hypermedia
 
@@ -29,41 +29,40 @@
 
 ;;; Code:
 
-(defvar helm-org-ql-actions)
-(declare-function sl--insert-link "org-super-links")
+(declare-function org-super-links--insert-link "org-super-links")
 (declare-function helm-org-ql "ext:helm-org-ql")
 (declare-function org-agenda-files "ext:org-mode")
 
-(defun sl-buffer-mode (&optional buffer-or-name)
+(defun org-super-links-org-ql-buffer-mode (&optional buffer-or-name)
   "Return the major mode associated with a buffer.
 If BUFFER-OR-NAME is nil return current buffer's mode."
   (buffer-local-value 'major-mode
 		      (if buffer-or-name (get-buffer buffer-or-name) (current-buffer))))
 
-(defun sl-get-search-buffers ()
+(defun org-super-links-org-ql-get-search-buffers ()
   "Return the buffers to provide to `helm-org-ql`.
 If the current buffer is an `org-mode` buffer add it to `org-agenda-files`.
 Else just return `org-agenda-files`"
   ;; this needs to add the buffer you were on before opening a capture
   ;; template too (if it's an org mode file)
-  (if (and (string= (sl-buffer-mode) "org-mode") (buffer-file-name))
+  (if (and (string= (org-super-links-org-ql-buffer-mode) "org-mode") (buffer-file-name))
       (cons (buffer-file-name) (org-agenda-files))
     (org-agenda-files)))
 
 
-(defun sl-link-search-interface-ql ()
+(defun org-super-links-org-ql-link-search-interface ()
   "Setup the helm-org-ql search interface."
-  (add-to-list 'helm-org-ql-actions '("super-link-temp" . sl-insert-link-org-ql-action) nil)
-  (helm-org-ql (sl-get-search-buffers))
+  (add-to-list 'helm-org-ql-actions '("super-link-temp" . org-super-links-org-ql-insert-link-action) nil)
+  (helm-org-ql (org-super-links-org-ql-get-search-buffers))
   (pop helm-org-ql-actions))
 
 (with-eval-after-load "helm-org-ql"
-  (add-to-list 'helm-org-ql-actions '("Super Link" . sl-insert-link-org-ql-action) t))
+  (add-to-list 'helm-org-ql-actions '("Super Link" . org-super-links-org-ql-insert-link-action) t))
 
-(defun sl-insert-link-org-ql-action (marker)
-  "Wrapper for `sl--insert-link` for org-ql integration.
+(defun org-super-links-org-ql-insert-link-action (marker)
+  "Wrapper for `org-super-links--insert-link` for org-ql integration.
 MARKER is the point at first char in the selected heading."
-  (sl--insert-link marker))
+  (org-super-links--insert-link marker))
 
 (provide 'org-super-links-org-ql)
 
