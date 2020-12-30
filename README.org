@@ -10,6 +10,16 @@ I also want to keep this as close to pure org-mode as possible. No external db, 
 
 I'm still kind of fleshing out the idea, but I think I like it.
 
+* Contents
+
+- [[#screenshots][Screenshots]]
+- [[#installation][Installation]]
+- [[#usage][Usage]]
+- [[#configuration][Configuration]]
+- [[#tips][Tips]]
+- [[#related][Related Packages]]
+- [[#changelog][Changelog]]
+
 * Screenshots
 
 Everybody loves screenshots, right?
