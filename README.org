@@ -333,9 +333,13 @@ user-error: Unable to resolve link: "*Heading with a backlink"
 
 See [[https://github.com/toshism/org-super-links/issues/22][issue #22]]
 
-* Notes
+* Related
 
-This is still kind of in flux, so things could change... It's starting to settle down, but I'm still playing around with the idea a bit. If you want something that will stay reasonably stable pick a tag.
+[[https://github.com/toshism/org-super-links-peek][org-super-links-peek]] - take a peek at your links
+
+[[https://github.com/toshism/org-linker-edna][org-linker-edna]] - link headings as dependencies
+
+[[https://github.com/toshism/org-linker][org-linker]] - utility package to serve as a base for linking org headings in various ways
 
 * Changelog
 ** 0.4
