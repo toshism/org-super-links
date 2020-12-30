@@ -30,6 +30,7 @@
 ;;; Code:
 
 (require 'org)
+(require 'org-element)
 
 (defvar org-super-links-backlink-into-drawer t
   "Controls how/where to insert the backlinks.
