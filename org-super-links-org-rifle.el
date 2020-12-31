@@ -3,7 +3,7 @@
 ;; Copyright (C) 2020  tosh
 
 ;; Author: tosh <tosh.lyons@gmail.com>
-;; Version: 0.3
+;; Version: 0.4
 ;; Package-Requires: ((emacs "26.1") (helm-org-rifle "0.1"))
 ;; URL: https://github.com/toshism/org-super-links
 ;; Keywords: convenience, hypermedia
@@ -32,7 +32,7 @@
 (declare-function org-super-links--insert-link "org-super-links")
 (declare-function helm-org-rifle "ext:helm-org-rifle")
 
-(defun org-super-links-org-rifle-insert-link-rifle-action (candidate)
+(defun org-super-links-org-rifle-insert-link-action (candidate)
   "Wrapper for `org-super-links--insert-link` for helm/rifle integration.
 CANDIDATE is a helm candidate."
   (let ((buffer (car candidate))

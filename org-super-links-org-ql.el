@@ -3,7 +3,7 @@
 ;; Copyright (C) 2020  tosh
 
 ;; Author: tosh <tosh.lyons@gmail.com>
-;; Version: 0.3
+;; Version: 0.4
 ;; Package-Requires: ((emacs "26.1") (helm-org-ql "0.5"))
 ;; URL: https://github.com/toshism/org-super-links
 ;; Keywords: convenience, hypermedia
