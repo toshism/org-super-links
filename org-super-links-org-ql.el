@@ -32,6 +32,7 @@
 (declare-function org-super-links--insert-link "org-super-links")
 (declare-function helm-org-ql "ext:helm-org-ql")
 (declare-function org-agenda-files "ext:org-mode")
+(defvar helm-org-ql-actions)
 
 (defun org-super-links-org-ql-buffer-mode (&optional buffer-or-name)
   "Return the major mode associated with a buffer.
@@ -51,7 +52,7 @@ Else just return `org-agenda-files`"
 
 
 (defun org-super-links-org-ql-link-search-interface ()
-  "Setup the helm-org-ql search interface."
+  "Setup the `helm-org-ql' search interface."
   (add-to-list 'helm-org-ql-actions '("super-link-temp" . org-super-links-org-ql-insert-link-action) nil)
   (helm-org-ql (org-super-links-org-ql-get-search-buffers))
   (pop helm-org-ql-actions))
@@ -60,7 +61,7 @@ Else just return `org-agenda-files`"
   (add-to-list 'helm-org-ql-actions '("Super Link" . org-super-links-org-ql-insert-link-action) t))
 
 (defun org-super-links-org-ql-insert-link-action (marker)
-  "Wrapper for `org-super-links--insert-link` for org-ql integration.
+  "Wrapper for `org-super-links--insert-link` for `org-ql' integration.
 MARKER is the point at first char in the selected heading."
   (org-super-links--insert-link marker))
 

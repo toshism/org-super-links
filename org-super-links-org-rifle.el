@@ -31,6 +31,7 @@
 
 (declare-function org-super-links--insert-link "org-super-links")
 (declare-function helm-org-rifle "ext:helm-org-rifle")
+(defvar helm-org-rifle-actions)
 
 (defun org-super-links-org-rifle-insert-link-action (candidate)
   "Wrapper for `org-super-links--insert-link` for helm/rifle integration.
