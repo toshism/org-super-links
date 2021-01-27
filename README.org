@@ -210,7 +210,7 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
 
    See the functions =org-super-links-get-location= (in the =org-super-links.el= file) or =org-super-links-org-ql-link-search-interface= (in =org-super-links-org-ql.el=) for examples.
 
-   Default is set based on currently installed packages. In order of priortity:
+   Default is set based on currently installed packages. In order of priority:
    1. "helm-org-ql"
    2. "helm-org-rifle"
    3. =org-super-links-get-location=
@@ -223,7 +223,7 @@ These are just a few tips on things you can do that may be interesting or helpfu
 
 *** org-id
 
-When creating links it's generally better to use an =id=. Add this to your config file so that any headings you link to or from get an id added automatically. I would strongly recomend using this.
+When creating links it's generally better to use an =id=. Add this to your config file so that any headings you link to or from get an id added automatically. I would strongly recommend using this.
 
 #+begin_src elisp
 (require 'org-id)
@@ -260,7 +260,7 @@ These quick related links make me think I should possibly add the option to log 
 
 *** limit length of link description
 
-Sometimes heading titles can get a bit long. You can define a custom function to limit their length and set =org-super-links-default-description-formatter=. Here's a very naive way to keep them short. This will blidly truncate all link descriptions to a maximum of 20 characters. You could come up with a more sophisticated function for limiting the length by words or something.
+Sometimes heading titles can get a bit long. You can define a custom function to limit their length and set =org-super-links-default-description-formatter=. Here's a very naive way to keep them short. This will blindly truncate all link descriptions to a maximum of 20 characters. You could come up with a more sophisticated function for limiting the length by words or something.
 
 #+begin_src elisp
   (defun org-super-links-truncate-description (link desc)
@@ -273,7 +273,7 @@ The default value of =org-super-links-default-description-formatter= is set to =
 
 *** Index headlines
 
-I've found it's useful to create "index headlines" to make navigating notes convenient. For example I have a hiearchy of locations I use for location specific notes such as restaurant recomendations or vacation planning. These often end up being just a heading with a bunch of backlinks from various notes.
+I've found it's useful to create "index headlines" to make navigating notes convenient. For example I have a hierarchy of locations I use for location specific notes such as restaurant recommendations or vacation planning. These often end up being just a heading with a bunch of backlinks from various notes.
 
 #+begin_src
 
@@ -392,7 +392,7 @@ Bugfixes
 - Default target heading search changed to =helm-org-ql=
 - Allow target heading search to be configurable through =org-super-links-search-function=
 - Add more configuration options for link formatting
-- Support for customizing the default link descripton =org-super-links-default-description-formatter=
+- Support for customizing the default link description =org-super-links-default-description-formatter=
 
 Bugfixes:
 - fix issue when calling =org-capture= from a non-org-mode buffer.
