@@ -104,7 +104,7 @@ action to the respective action menu.
 
 See the function `org-super-links-link-search-interface-ql' or for an example.
 
-Default is set based on currently installed packages.  In order of priortity:
+Default is set based on currently installed packages.  In order of priority:
 - 'helm-org-ql'
 - 'helm-org-rifle'
 - `org-super-links-get-location'
@@ -205,7 +205,7 @@ used instead of the default value."
 	       link)))))
     (widen)
     (if (> (length link) 1)
-	(error "Multiple links found.  Cancelling delete")
+	(error "Multiple links found.  Canceling delete")
       (car link))))
 
 (defun org-super-links--org-narrow-to-here ()
@@ -243,7 +243,7 @@ If point is in drawer, delete the entire line."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun org-super-links-related-into-drawer ()
-  "Name of the realted drawer, as a string, or nil.
+  "Name of the related drawer, as a string, or nil.
 This is the value of variable
 `org-super-links-related-into-drawer'.  However, if the current
 entry has or inherits a RELATED_INTO_DRAWER property, it will be
@@ -406,7 +406,7 @@ of links to/form org files.  GOTO and KEYS are unused."
   (save-excursion
     ;; this is a hack. if the point is at the first char of a heading
     ;; the marker is not updated as expected when text is inserted
-    ;; above the heading. for exapmle a capture template inserted
+    ;; above the heading. for example a capture template inserted
     ;; above. that results in the link being to the heading above the
     ;; expected heading.
     (goto-char (line-end-position))
