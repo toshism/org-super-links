@@ -367,7 +367,7 @@ do not modify existing link."
 		    (save-excursion
 		      (org-open-at-point)
 		      (point-marker))))))
-    (org-super-links--insert-link target arg)
+    (org-super-links--insert-link target (or arg (not org-super-links-related-into-drawer)))
     (goto-char (marker-position from-m)))
 
   (when (and (not arg) (org-super-links-related-into-drawer))
