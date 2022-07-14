@@ -315,6 +315,7 @@ Where the backlink is placed is determined by the variable `org-super-links-back
   "Go to MARKER, run HOOKS and store a link."
   (with-current-buffer (marker-buffer marker)
     (save-excursion
+      (widen) 				;; buffer could be narrowed
       (goto-char (marker-position marker))
       (run-hooks hooks)
       (call-interactively #'org-store-link)
@@ -341,6 +342,7 @@ only used when converting a link."
 	 (target-formatted-link (org-super-links-link-builder target-link)))
     (with-current-buffer (marker-buffer target)
       (save-excursion
+	(widen) 			;; buffer could be narrowed
 	(goto-char (marker-position target))
 	(when (derived-mode-p 'org-mode)
 	  (org-super-links-insert-backlink (car source-formatted-link) (cdr source-formatted-link)))))
