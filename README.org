@@ -60,11 +60,26 @@ This has a link pointing to the heading above
 
 * Installation
 
+Maybe someday I'll put this on melpa, but it is not currently.
+
+I personally use [[https://github.com/radian-software/straight.el][straight]] and [[https://github.com/jwiegley/use-package][use-package]] for package management. It's pretty nice.
+
+Install develop branch using straight.
+#+begin_src elisp
+(use-package org-super-links
+  :straight (org-super-links :type git :host github :repo "toshism/org-super-links" :branch "develop")
+  :bind (("C-c s s" . org-super-links-link)
+         ("C-c s l" . org-super-links-store-link)
+         ("C-c s C-l" . org-super-links-insert-link)))
+#+end_src
+
+You can also use [[https://github.com/quelpa/quelpa][quelpa]]. Example basic configuration using quelpa:
 #+begin_src elisp
   (use-package org-super-links
-    :bind (("C-c s s" . org-super-links-link)
-	   ("C-c s l" . org-super-links-store-link)
-	   ("C-c s C-l" . org-super-links-insert-link)))
+    :quelpa (org-super-links :repo "toshism/org-super-links" :fetcher github :commit "0.3")
+    :bind (("C-c s s" . sl-link)
+	   ("C-c s l" . sl-store-link)
+	   ("C-c s C-l" . sl-insert-link)))
 #+end_src
 
 * Usage
