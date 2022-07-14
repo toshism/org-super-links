@@ -368,6 +368,7 @@ See [[https://github.com/toshism/org-super-links/issues/22][issue #22]]
 
 * Changelog
 
+- fixed bug when linking to narrowed buffer
 - fixed bug with converting links to super links when related-into-drawer nil
 
 ** 0.4
