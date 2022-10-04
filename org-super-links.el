@@ -197,16 +197,17 @@ used instead of the default value."
 ;; delete related functions
 (defun org-super-links--find-link (id)
   "Return link element for ID."
-  (org-super-links--org-narrow-to-here)
-  (let ((link
-	 (org-element-map (org-element-parse-buffer) 'link
-	   (lambda (link)
-	     (when (string= (org-element-property :path link) id)
-	       link)))))
-    (widen)
-    (if (> (length link) 1)
-	(error "Multiple links found.  Canceling delete")
-      (car link))))
+  (save-restriction
+    (org-super-links--org-narrow-to-here)
+    (let ((link
+           (org-element-map (org-element-parse-buffer) 'link
+             (lambda (link)
+               (when (string= (org-element-property :path link) id)
+                 link)))))
+      (widen)
+      (if (> (length link) 1)
+          (error "Multiple links found.  Canceling delete")
+        (car link)))))
 
 (defun org-super-links--org-narrow-to-here ()
   "Narrow to current heading, excluding subheadings."
@@ -315,11 +316,12 @@ Where the backlink is placed is determined by the variable `org-super-links-back
   "Go to MARKER, run HOOKS and store a link."
   (with-current-buffer (marker-buffer marker)
     (save-excursion
-      (widen) 				;; buffer could be narrowed
-      (goto-char (marker-position marker))
-      (run-hooks hooks)
-      (call-interactively #'org-store-link)
-      (pop org-stored-links))))
+      (save-restriction
+        (widen) ;; buffer could be narrowed
+        (goto-char (marker-position marker))
+        (run-hooks hooks)
+        (call-interactively #'org-store-link)
+        (pop org-stored-links)))))
 
 (defun org-super-links-link-builder (link)
   "Format link description for LINK."
@@ -342,10 +344,11 @@ only used when converting a link."
 	 (target-formatted-link (org-super-links-link-builder target-link)))
     (with-current-buffer (marker-buffer target)
       (save-excursion
-	(widen) 			;; buffer could be narrowed
-	(goto-char (marker-position target))
-	(when (derived-mode-p 'org-mode)
-	  (org-super-links-insert-backlink (car source-formatted-link) (cdr source-formatted-link)))))
+        (save-restriction
+          (widen) ;; buffer could be narrowed
+          (goto-char (marker-position target))
+          (when (derived-mode-p 'org-mode)
+            (org-super-links-insert-backlink (car source-formatted-link) (cdr source-formatted-link))))))
     (unless no-forward
       (with-current-buffer (marker-buffer source)
 	(save-excursion
