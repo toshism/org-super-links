@@ -166,10 +166,8 @@ This is called with point in the heading of the backlink.")
   "Return the default prefix string for a backlink.
 Inactive timestamp formatted according to `org-time-stamp-formats' and
 a separator ' <- '."
-  (let* ((time-format (substring (cdr org-time-stamp-formats) 1 -1))
-	 (time-stamp (format-time-string time-format (current-time))))
-    (format "[%s] <- "
-	    time-stamp)))
+  (concat (format-time-string (org-time-stamp-format t t) (current-time))
+	" <- "))
 
 (defun org-super-links-default-description-formatter (link desc)
   "Return a string to use as the link desciption.
@@ -275,10 +273,8 @@ used instead of the default value."
   "Return the default prefix string for a backlink.
 Inactive timestamp formatted according to `org-time-stamp-formats' and
 a separator ' -> '."
-  (let* ((time-format (substring (cdr org-time-stamp-formats) 1 -1))
-	 (time-stamp (format-time-string time-format (current-time))))
-    (format "[%s] -> "
-	    time-stamp)))
+  (concat (format-time-string (org-time-stamp-format t t) (current-time))
+	" -> "))
 
 (defun org-super-links-quick-insert-drawer-link ()
   "Insert link into drawer regardless of variable `org-super-links-related-into-drawer' value."
