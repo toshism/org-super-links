@@ -416,10 +416,6 @@ of links to/form org files.  GOTO and KEYS are unused."
       (set-register ?^ c1)
       (message "Link copied"))))
 
-;; not sure if this should be autoloaded or left to config?
-;;;###autoload
-(advice-add 'org-capture :before #'org-super-links-store-link)
-
 ;;;###autoload
 (defun org-super-links-insert-link ()
   "Insert a super link from the register."
