@@ -96,10 +96,6 @@ To create a link at point call =org-super-links-link=. That will bring up the co
 
 There is also a =helm-org-ql= and =helm-org-rifle= action. To use this method, with the point at the place you would like the link, call =helm-org-ql= / =helm-org-rifle=. Select the target of the link and from the actions menu choose =Super Link=. A link pointing to the selected candidate will be created at point, and a backlink will be added to the target.
 
-*** capture template
-
-Whenever =org-capture= is called a link to the current point is automatically stored. To insert this link simply call =org-super-links-insert-link=. The backlink will be created automatically as usual.
-
 *** org-super-links-quick-insert-inline-link
 
 Creates a link ignoring the =org-super-links-related-into-drawer= and =org-super-links-link-prefix= settings and inserts a link with no prefix at point.
@@ -227,6 +223,16 @@ The variables below allow quite a bit of flexibility to allow you to fit =org-su
    3. =org-super-links-get-location=
 
    =org-super-links-get-location= internally uses =org-refile-get-location=.
+
+*** capture template
+
+If you want a link to the current point to be automatically stored whenever =org-capture= is called, simply add the following to your configuration:
+
+#+begin_src emacs-lisp
+(advice-add 'org-capture :before #'org-super-links-store-link)
+#+end_src
+
+Then, to insert this link, simply call =org-super-links-insert-link=. The backlink will be created automatically as usual.
 
 * Tips
 
