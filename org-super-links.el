@@ -353,7 +353,7 @@ only used when converting a link."
 
 
 ;;;###autoload
-(defun org-super-links-convert-link-to-super (arg)
+(defun org-super-links-convert-link-to-super (&optional arg)
   "Convert a normal `org-mode' link at `point' to super link, ARG prefix.
 If variable `org-super-links-related-into-drawer' is non-nil move
 the link into drawer.
