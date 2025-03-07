@@ -134,9 +134,13 @@ This is called with point in the heading of the backlink.")
   "Call the search interface specified in variable `org-super-links-search-function'."
   (cond ((string= org-super-links-search-function "helm-org-ql")
 	 (require 'org-super-links-org-ql)
+         (add-to-list 'helm-org-ql-actions
+                      '("Super Link" . org-super-links-org-ql-insert-link-action) t)
 	 (org-super-links-org-ql-link-search-interface))
 	((string= org-super-links-search-function "helm-org-rifle")
 	 (require 'org-super-links-org-rifle)
+         (add-to-list 'helm-org-rifle-actions
+                      '("Super Link" . org-super-links-org-rifle-insert-link-action) t)
 	 (org-super-links-org-rifle-link-search-interface))
 	(t (funcall org-super-links-search-function))))
 

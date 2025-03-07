@@ -36,9 +36,6 @@ CANDIDATE is a helm candidate."
     (set-marker target pos buffer)
     (org-super-links--insert-link target)))
 
-(with-eval-after-load "helm-org-rifle"
-  (add-to-list 'helm-org-rifle-actions '("Super Link" . org-super-links-org-rifle-insert-link-action) t))
-
 (defun org-super-links-org-rifle-link-search-interface ()
   "Search interface for helm-rifle."
   (add-to-list 'helm-org-rifle-actions '("super-link-temp" . org-super-links-org-rifle-insert-link-action) nil)
