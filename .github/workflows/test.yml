@@ -25,6 +25,13 @@ jobs:
       with:
         version: ${{ matrix.emacs_version }}
 
+    - name: Check syntax
+      run: |
+        emacs -Q --batch \
+          --eval "(add-to-list 'load-path \"$GITHUB_WORKSPACE\")" \
+          --eval "(find-file \"$GITHUB_WORKSPACE/org-super-links.el\")" \
+          --eval "(condition-case err (check-parens) (error (message \"Syntax error: %S\" err) (kill-emacs 1)))"
+
     - name: Run tests
       run: |
         emacs -Q --batch \

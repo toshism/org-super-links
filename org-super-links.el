@@ -178,7 +178,7 @@ LINK is the link target.  DESC is the provided desc."
 	  ((stringp p) (or desc p))
 	  ((and (fboundp p) (not (eq p 'org-super-links-default-description-formatter)))
 	   (funcall p link desc))
-	  (t (or desc link))))
+	  (t (or desc link)))))
 
 (defun org-super-links-backlink-into-drawer ()
   "Name of the backlink drawer, as a string, or nil.
