@@ -13,6 +13,7 @@ I also want to keep this as close to pure org-mode as possible. No external db, 
 - [[#usage][Usage]]
 - [[#configuration][Configuration]]
 - [[#tips][Tips]]
+- [[#testing][Testing]]
 - [[#related][Related Packages]]
 - [[#changelog][Changelog]]
 
@@ -359,6 +360,36 @@ user-error: Unable to resolve link: "*Heading with a backlink"
 #+end_src
 
 See [[https://github.com/toshism/org-super-links/issues/22][issue #22]]
+
+* Testing
+
+The package includes a test suite to ensure functionality works correctly. Tests can be run in several ways:
+
+*** Interactive Testing in Emacs
+
+You can run the tests interactively within Emacs:
+
+#+begin_src elisp
+M-x ert-run-tests-interactively RET org-super-links-test
+#+end_src
+
+This opens a buffer showing detailed test results.
+
+*** Command Line Testing
+
+For automated testing or CI/CD pipelines, run:
+
+#+begin_src bash
+emacs -batch -l ert -l org-super-links.el -l org-super-links-tests.el -f ert-run-tests-batch-and-exit
+#+end_src
+
+*** GitHub Actions
+
+The repository includes GitHub Actions workflows that automatically run tests on push and pull requests. These tests run against multiple Emacs versions (27.1, 28.2, 29.1, and latest snapshot) to ensure compatibility.
+
+*** Writing New Tests
+
+When fixing bugs or adding features, please add appropriate tests to =org-super-links-tests.el=. The existing tests provide examples of how to structure new tests.
 
 * Related
 

@@ -170,13 +170,15 @@ a separator ' <- '."
 	" <- "))
 
 (defun org-super-links-default-description-formatter (link desc)
-  "Return a string to use as the link desciption.
+  "Return a string to use as the link description.
 LINK is the link target.  DESC is the provided desc."
   (let ((p org-super-links-default-description-formatter))
+    ;; Prevent recursion when p is the same as this function
     (cond ((equal p nil) (or desc link))
 	  ((stringp p) (or desc p))
-	  ((fboundp p) (funcall p link desc))
-	  (t desc))))
+	  ((and (fboundp p) (not (eq p 'org-super-links-default-description-formatter)))
+	   (funcall p link desc))
+	  (t (or desc link))))
 
 (defun org-super-links-backlink-into-drawer ()
   "Name of the backlink drawer, as a string, or nil.
@@ -256,7 +258,8 @@ used instead of the default value."
 	  (org-super-links-related-into-drawer org-super-links-related-drawer-default-name))))
 
 (defun org-super-links-insert-relatedlink (link desc)
-  "LINK DESC related experiment."
+  "Insert related link with LINK and DESC.
+If variable `org-super-links-related-into-drawer' is non-nil, insert into drawer."
   (if (org-super-links-related-into-drawer)
       (let* ((org-log-into-drawer (org-super-links-related-into-drawer))
 	     (beg (org-log-beginning t)))
