@@ -176,7 +176,9 @@ LINK is the link target.  DESC is the provided desc."
     ;; Prevent recursion when p is the same as this function
     (cond ((equal p nil) (or desc link))
 	  ((stringp p) (or desc p))
-	  ((and (fboundp p) (not (eq p 'org-super-links-default-description-formatter)))
+	  ((and (symbolp p) (fboundp p) (not (eq p 'org-super-links-default-description-formatter)))
+	   (funcall p link desc))
+	  ((functionp p) ; Handle lambda and compiled functions
 	   (funcall p link desc))
 	  (t (or desc link)))))
 
