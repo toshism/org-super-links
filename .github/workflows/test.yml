@@ -30,14 +30,18 @@ jobs:
         emacs -Q --batch \
           --eval "(add-to-list 'load-path \"$GITHUB_WORKSPACE\")" \
           --eval "(find-file \"$GITHUB_WORKSPACE/org-super-links.el\")" \
-          --eval "(condition-case err (check-parens) (error (message \"Syntax error: %S\" err) (kill-emacs 1)))"
+          --eval "(message \"Checking org-super-links.el...\")" \
+          --eval "(condition-case err (check-parens) (error (message \"Syntax error in org-super-links.el: %S\" err) (kill-emacs 1)))" \
+          --eval "(find-file \"$GITHUB_WORKSPACE/org-super-links-tests.el\")" \
+          --eval "(message \"Checking org-super-links-tests.el...\")" \
+          --eval "(condition-case err (check-parens) (error (message \"Syntax error in org-super-links-tests.el: %S\" err) (kill-emacs 1)))"
 
     - name: Run tests
       run: |
         emacs -Q --batch \
           --eval "(add-to-list 'load-path \"$GITHUB_WORKSPACE\")" \
-          --eval "(require 'org)" \
-          --eval "(require 'ert)" \
-          --eval "(require 'org-super-links)" \
-          --eval "(require 'org-super-links-tests)" \
+          --eval "(condition-case err (require 'org) (error (message \"Error loading org: %S\" err) (kill-emacs 1)))" \
+          --eval "(condition-case err (require 'ert) (error (message \"Error loading ert: %S\" err) (kill-emacs 1)))" \
+          --eval "(condition-case err (require 'org-super-links) (error (message \"Error loading org-super-links: %S\" err) (kill-emacs 1)))" \
+          --eval "(condition-case err (require 'org-super-links-tests) (error (message \"Error loading org-super-links-tests: %S\" err) (kill-emacs 1)))" \
           --eval "(ert-run-tests-batch-and-exit)"

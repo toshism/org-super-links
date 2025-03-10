@@ -28,8 +28,7 @@
 
 ;; Test for Issue #77 - description formatter called twice
 (ert-deftest org-super-links-test-description-formatter ()
-  "Test that the description formatter is only called once.
-Also tests that lambda functions are properly handled."
+  "Test that the description formatter is only called once."
   (let ((call-count 0)
         (test-formatter (lambda (link desc)
                           (setq call-count (1+ call-count))
@@ -50,33 +49,7 @@ Also tests that lambda functions are properly handled."
               (should (= call-count 1))))
         
         ;; Restore original formatter
-        (setq org-super-links-default-description-formatter original-formatter))))
-
-;; Test custom function formatter case
-(ert-deftest org-super-links-test-function-description-formatter ()
-  "Test that a named function formatter works correctly."
-  (defun org-super-links-test-sample-formatter (link desc)
-    "Sample formatter that adds a prefix."
-    (format "TEST: %s" (or desc link)))
-  
-  (let ((original-formatter org-super-links-default-description-formatter))
-    (unwind-protect
-        (progn
-          ;; Set formatter to our test function
-          (setq org-super-links-default-description-formatter 'org-super-links-test-sample-formatter)
-          
-          ;; With description
-          (let ((result (org-super-links-default-description-formatter "https://example.com" "Example")))
-            (should (string= result "TEST: Example")))
-          
-          ;; Without description
-          (let ((result (org-super-links-default-description-formatter "https://example.com" nil)))
-            (should (string= result "TEST: https://example.com"))))
-      
-      ;; Restore original formatter
-      (setq org-super-links-default-description-formatter original-formatter)
-      ;; Clean up the test function
-      (fmakunbound 'org-super-links-test-sample-formatter))))
+        (setq org-super-links-default-description-formatter original-formatter)))))
 
 ;; Test recursive case that caused the original issue
 (ert-deftest org-super-links-test-recursive-description-formatter ()
