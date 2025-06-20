@@ -162,12 +162,24 @@ This is called with point in the heading of the backlink.")
 	((stringp org-super-links-link-postfix) org-super-links-link-postfix)
 	(t (funcall org-super-links-link-postfix))))
 
+(defun org-super-links--format-timestamp ()
+  "Return a formatted inactive timestamp string.
+Compatible with both older Emacs versions and Emacs 30.1+."
+  (if (fboundp 'org-time-stamp-format)
+      ;; Older Emacs versions - use org-time-stamp-format function
+      (condition-case nil
+          (format-time-string (org-time-stamp-format t t) (current-time))
+        (error
+         ;; If org-time-stamp-format exists but fails, use fallback
+         (format-time-string (concat "[" (cdr org-timestamp-formats) "]") (current-time))))
+    ;; Emacs 30.1+ - org-time-stamp-format may not exist, use org-timestamp-formats
+    (format-time-string (concat "[" (cdr org-timestamp-formats) "]") (current-time))))
+
 (defun org-super-links-backlink-prefix-timestamp ()
   "Return the default prefix string for a backlink.
 Inactive timestamp formatted according to `org-time-stamp-formats' and
 a separator ' <- '."
-  (concat (format-time-string (org-time-stamp-format t t) (current-time))
-	" <- "))
+  (concat (org-super-links--format-timestamp) " <- "))
 
 (defun org-super-links-default-description-formatter (link desc)
   "Return a string to use as the link desciption.
@@ -270,11 +282,10 @@ used instead of the default value."
     (insert (org-super-links-link-postfix))))
 
 (defun org-super-links-link-prefix-timestamp ()
-  "Return the default prefix string for a backlink.
+  "Return the default prefix string for a link.
 Inactive timestamp formatted according to `org-time-stamp-formats' and
 a separator ' -> '."
-  (concat (format-time-string (org-time-stamp-format t t) (current-time))
-	" -> "))
+  (concat (org-super-links--format-timestamp) " -> "))
 
 (defun org-super-links-quick-insert-drawer-link ()
   "Insert link into drawer regardless of variable `org-super-links-related-into-drawer' value."
