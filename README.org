@@ -72,7 +72,7 @@ Install develop branch using straight.
 You can also use [[https://github.com/quelpa/quelpa][quelpa]] with [[https://github.com/quelpa/quelpa-use-package][quelpa-use-package]]. Example basic configuration using quelpa:
 #+begin_src elisp
   (use-package org-super-links
-    :quelpa (org-super-links :repo "toshism/org-super-links" :fetcher github :commit "0.4")
+    :quelpa (org-super-links :repo "toshism/org-super-links" :fetcher github :commit "0.5")
     :bind (("C-c s s" . org-super-links-link)
          ("C-c s l" . org-super-links-store-link)
          ("C-c s C-l" . org-super-links-insert-link)))
@@ -370,8 +370,26 @@ See [[https://github.com/toshism/org-super-links/issues/22][issue #22]]
 
 * Changelog
 
-- fixed bug when linking to narrowed buffer
-- fixed bug with converting links to super links when related-into-drawer nil
+** 0.5
+
+[2026-05-18]
+
+- Emacs 30.1+ compatibility: fix timestamp formatting (#106)
+- Don't directly use the value of =org-time-stamp-format= (#78)
+- Add capture target buffer to search targets (#68)
+- Fix byte-compile warnings (#54)
+- =org-super-links-link= argument is now optional (#104)
+
+Breaking changes
+- =advice-add= for =org-capture= auto-store is no longer added automatically (#101). Users who relied on a link being stored whenever =org-capture= was called must now add the advice to their own configuration:
+  #+begin_src emacs-lisp
+  (advice-add 'org-capture :before #'org-super-links-store-link)
+  #+end_src
+
+Bugfixes
+- Handle target buffers potentially being narrowed (#73)
+- Keep the original narrowing states (#76)
+- Fix bug in =org-super-links-related-into-drawer=
 
 ** 0.4
 
