@@ -56,25 +56,26 @@ returns a string")
 
 (defvar org-super-links-related-into-drawer nil
     "Controls how/where to insert links.
-If non-nil a drawer will be created and links inserted there.  The
-default is `org-super-links-related-drawer-default-name'.  If this is set to a
-string a drawer will be created using that string.  For example LINKS.
-If nil links will just be inserted at point.")
+If non-nil, a drawer will be created and links inserted there.
+The default is `org-super-links-related-drawer-default-name'.
+If this is set to a string, a drawer will be created using that string.
+For example \"LINKS\".  If nil, links will just be inserted at point.")
 
 (defvar org-super-links-related-drawer-default-name "RELATED"
   "Default name to use for link drawer.
-If variable `org-super-links-related-into-drawer' is 't' use this
-name for the drawer.  See variable `org-super-links-related-into-drawer' for more info.")
+If variable `org-super-links-related-into-drawer' is t, use this
+name for the drawer.
+See variable `org-super-links-related-into-drawer' for more info.")
 
 (defvar org-super-links-link-prefix nil
   "Prefix to insert before the link.
 This can be a string, nil, or a function that takes no arguments and
-returns a string")
+returns a string.")
 
 (defvar org-super-links-link-postfix nil
   "Postfix to insert after the link.
 This can be a string, nil, or a function that takes no arguments and
-returns a string")
+returns a string.")
 
 (defvar org-super-links-default-description-formatter org-make-link-description-function
   "What to use if no description is provided.
@@ -92,21 +93,22 @@ Default is the variable `org-make-link-desciption-function'.")
 	((require 'helm-org-rifle nil 'no-error) "helm-org-rifle")
 	(t 'org-super-links-get-location))
   "The interface to use for finding target links.
-This can be a string with one of the values 'helm-org-ql',
-'helm-org-rifle', or a function.  If you provide a custom
-function it will be called with the `point` at the location the link
+
+This can be a string with one of the values `helm-org-ql',
+`helm-org-rifle', or a function.  If you provide a custom
+function it will be called with the `point' at the location the link
 should be inserted.  The only other requirement is that it should call
 the function `org-super-links--insert-link' with a marker to the target link.
 AKA the place you want the backlink.
 
-Using 'helm-org-ql' or 'helm-org-rifle' will also add a new
+Using `helm-org-ql' or `helm-org-rifle' will also add a new
 action to the respective action menu.
 
 See the function `org-super-links-link-search-interface-ql' or for an example.
 
 Default is set based on currently installed packages.  In order of priority:
-- 'helm-org-ql'
-- 'helm-org-rifle'
+- `helm-org-ql'
+- `helm-org-rifle'
 - `org-super-links-get-location'
 
 `org-super-links-get-location' internally uses `org-refile-get-location'.")
@@ -132,9 +134,13 @@ This is called with point in the heading of the backlink.")
   "Call the search interface specified in variable `org-super-links-search-function'."
   (cond ((string= org-super-links-search-function "helm-org-ql")
 	 (require 'org-super-links-org-ql)
+         (add-to-list 'helm-org-ql-actions
+                      '("Super Link" . org-super-links-org-ql-insert-link-action) t)
 	 (org-super-links-org-ql-link-search-interface))
 	((string= org-super-links-search-function "helm-org-rifle")
 	 (require 'org-super-links-org-rifle)
+         (add-to-list 'helm-org-rifle-actions
+                      '("Super Link" . org-super-links-org-rifle-insert-link-action) t)
 	 (org-super-links-org-rifle-link-search-interface))
 	(t (funcall org-super-links-search-function))))
 
@@ -421,7 +427,7 @@ of links to/form org files.  GOTO and KEYS are unused."
     ;; above the heading. for example a capture template inserted
     ;; above. that results in the link being to the heading above the
     ;; expected heading.
-    (goto-char (line-end-position))
+    (end-of-line)
     (let ((c1 (make-marker)))
       (set-marker c1 (point) (current-buffer))
       (set-register ?^ c1)

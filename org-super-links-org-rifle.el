@@ -2,12 +2,6 @@
 
 ;; Copyright (C) 2020  tosh
 
-;; Author: tosh <tosh.lyons@gmail.com>
-;; Version: 0.4
-;; Package-Requires: ((emacs "26.1") (helm-org-rifle "0.1"))
-;; URL: https://github.com/toshism/org-super-links
-;; Keywords: convenience, hypermedia
-
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
@@ -41,9 +35,6 @@ CANDIDATE is a helm candidate."
 	(target (make-marker)))
     (set-marker target pos buffer)
     (org-super-links--insert-link target)))
-
-(with-eval-after-load "helm-org-rifle"
-  (add-to-list 'helm-org-rifle-actions '("Super Link" . org-super-links-org-rifle-insert-link-action) t))
 
 (defun org-super-links-org-rifle-link-search-interface ()
   "Search interface for helm-rifle."
