@@ -3,7 +3,7 @@
 ;; Copyright (C) 2020  tosh
 
 ;; Author: tosh <tosh.lyons@gmail.com>
-;; Version: 0.3
+;; Version: 0.4
 ;; Package-Requires: ((emacs "27.1"))
 ;; URL: https://github.com/toshism/org-super-links
 ;; Keywords: convenience, hypermedia
@@ -30,6 +30,8 @@
 ;;; Code:
 
 (require 'org)
+(require 'org-element)
+(declare-function org-make-link-description-function "ext:org-mode")
 
 (defvar org-super-links-backlink-into-drawer t
   "Controls how/where to insert the backlinks.
@@ -43,8 +45,8 @@ just be inserted under the heading.")
 This can be a string, nil, or a function that takes no arguments and
 returns a string.
 
-Default is the function `org-super-links-backlink-prefix-timestamp' which returns
-an inactive timestamp formatted according to the variable
+Default is the function `org-super-links-backlink-prefix-timestamp'
+which returns an inactive timestamp formatted according to the variable
 `org-time-stamp-formats' and a separator ' <- '.")
 
 (defvar org-super-links-backlink-postfix nil
@@ -60,8 +62,9 @@ string a drawer will be created using that string.  For example LINKS.
 If nil links will just be inserted at point.")
 
 (defvar org-super-links-related-drawer-default-name "RELATED"
-  "Default name to use for link drawer if `org-super-links-related-into-drawer' is 't'.
-See `org-super-links-related-into-drawer' for more info.")
+  "Default name to use for link drawer.
+If variable `org-super-links-related-into-drawer' is 't' use this
+name for the drawer.  See variable `org-super-links-related-into-drawer' for more info.")
 
 (defvar org-super-links-link-prefix nil
   "Prefix to insert before the link.
@@ -93,15 +96,15 @@ This can be a string with one of the values 'helm-org-ql',
 'helm-org-rifle', or a function.  If you provide a custom
 function it will be called with the `point` at the location the link
 should be inserted.  The only other requirement is that it should call
-the function `org-super-links--insert-link' with a marker to the target link.  AKA
-the place you want the backlink.
+the function `org-super-links--insert-link' with a marker to the target link.
+AKA the place you want the backlink.
 
-Using 'helm-org-ql' or 'helm-org-rifle' will also add a new action to
-the respective action menu.
+Using 'helm-org-ql' or 'helm-org-rifle' will also add a new
+action to the respective action menu.
 
 See the function `org-super-links-link-search-interface-ql' or for an example.
 
-Default is set based on currently installed packages.  In order of priortity:
+Default is set based on currently installed packages.  In order of priority:
 - 'helm-org-ql'
 - 'helm-org-rifle'
 - `org-super-links-get-location'
@@ -120,13 +123,13 @@ This is called with point in the heading of the backlink.")
 (declare-function org-super-links-org-rifle-link-search-interface "ext:org-super-links-org-rifle")
 
 (defun org-super-links-get-location ()
-  "An `org-super-links-search-function' that reuses the org-refile machinery."
+  "Default for function `org-super-links-search-function' that reuses the `org-refile' machinery."
   (let ((target (org-refile-get-location "Super Link")))
     (org-super-links--insert-link (set-marker (make-marker) (car (cdddr target))
 				 (get-file-buffer (car (cdr target)))))))
 
 (defun org-super-links-search-function ()
-  "Call the search interface specified in `org-super-links-search-function'."
+  "Call the search interface specified in variable `org-super-links-search-function'."
   (cond ((string= org-super-links-search-function "helm-org-ql")
 	 (require 'org-super-links-org-ql)
 	 (org-super-links-org-ql-link-search-interface))
@@ -159,14 +162,24 @@ This is called with point in the heading of the backlink.")
 	((stringp org-super-links-link-postfix) org-super-links-link-postfix)
 	(t (funcall org-super-links-link-postfix))))
 
+(defun org-super-links--format-timestamp ()
+  "Return a formatted inactive timestamp string.
+Compatible with both older Emacs versions and Emacs 30.1+."
+  (if (fboundp 'org-time-stamp-format)
+      ;; Older Emacs versions - use org-time-stamp-format function
+      (condition-case nil
+          (format-time-string (org-time-stamp-format t t) (current-time))
+        (error
+         ;; If org-time-stamp-format exists but fails, use fallback
+         (format-time-string (concat "[" (cdr org-timestamp-formats) "]") (current-time))))
+    ;; Emacs 30.1+ - org-time-stamp-format may not exist, use org-timestamp-formats
+    (format-time-string (concat "[" (cdr org-timestamp-formats) "]") (current-time))))
+
 (defun org-super-links-backlink-prefix-timestamp ()
   "Return the default prefix string for a backlink.
 Inactive timestamp formatted according to `org-time-stamp-formats' and
 a separator ' <- '."
-  (let* ((time-format (substring (cdr org-time-stamp-formats) 1 -1))
-	 (time-stamp (format-time-string time-format (current-time))))
-    (format "[%s] <- "
-	    time-stamp)))
+  (concat (org-super-links--format-timestamp) " <- "))
 
 (defun org-super-links-default-description-formatter (link desc)
   "Return a string to use as the link desciption.
@@ -179,9 +192,10 @@ LINK is the link target.  DESC is the provided desc."
 
 (defun org-super-links-backlink-into-drawer ()
   "Name of the backlink drawer, as a string, or nil.
-This is the value of `org-super-links-backlink-into-drawer'.  However, if the
-current entry has or inherits a BACKLINK_INTO_DRAWER property, it will
-be used instead of the default value."
+This is the value of variable
+`org-super-links-backlink-into-drawer'.  However, if the current
+entry has or inherits a BACKLINK_INTO_DRAWER property, it will be
+used instead of the default value."
   (let ((p (org-entry-get nil "BACKLINK_INTO_DRAWER" 'inherit t)))
     (cond ((equal p "nil") nil)
 	  ((equal p "t") "BACKLINKS")
@@ -193,16 +207,17 @@ be used instead of the default value."
 ;; delete related functions
 (defun org-super-links--find-link (id)
   "Return link element for ID."
-  (org-super-links--org-narrow-to-here)
-  (let ((link
-	 (org-element-map (org-element-parse-buffer) 'link
-	   (lambda (link)
-	     (when (string= (org-element-property :path link) id)
-	       link)))))
-    (widen)
-    (if (> (length link) 1)
-	(error "Multiple links found. Cancelling delete")
-      (car link))))
+  (save-restriction
+    (org-super-links--org-narrow-to-here)
+    (let ((link
+           (org-element-map (org-element-parse-buffer) 'link
+             (lambda (link)
+               (when (string= (org-element-property :path link) id)
+                 link)))))
+      (widen)
+      (if (> (length link) 1)
+          (error "Multiple links found.  Canceling delete")
+        (car link)))))
 
 (defun org-super-links--org-narrow-to-here ()
   "Narrow to current heading, excluding subheadings."
@@ -239,10 +254,11 @@ If point is in drawer, delete the entire line."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun org-super-links-related-into-drawer ()
-  "Name of the realted drawer, as a string, or nil.
-This is the value of `org-super-links-related-into-drawer'.  However, if the
-current entry has or inherits a RELATED_INTO_DRAWER property, it will
-be used instead of the default value."
+  "Name of the related drawer, as a string, or nil.
+This is the value of variable
+`org-super-links-related-into-drawer'.  However, if the current
+entry has or inherits a RELATED_INTO_DRAWER property, it will be
+used instead of the default value."
   (let ((p (org-entry-get nil "RELATED_INTO_DRAWER" 'inherit t)))
     (cond ((equal p "nil") nil)
 	  ((equal p "t") org-super-links-related-drawer-default-name)
@@ -266,15 +282,13 @@ be used instead of the default value."
     (insert (org-super-links-link-postfix))))
 
 (defun org-super-links-link-prefix-timestamp ()
-  "Return the default prefix string for a backlink.
+  "Return the default prefix string for a link.
 Inactive timestamp formatted according to `org-time-stamp-formats' and
 a separator ' -> '."
-  (let* ((time-format (substring (cdr org-time-stamp-formats) 1 -1))
-	 (time-stamp (format-time-string time-format (current-time))))
-    (format "[%s] -> "
-	    time-stamp)))
+  (concat (org-super-links--format-timestamp) " -> "))
 
 (defun org-super-links-quick-insert-drawer-link ()
+  "Insert link into drawer regardless of variable `org-super-links-related-into-drawer' value."
   (interactive)
   ;; how to handle prefix here?
   (let ((org-super-links-related-into-drawer (or org-super-links-related-into-drawer t))
@@ -282,6 +296,7 @@ a separator ' -> '."
     (org-super-links-link)))
 
 (defun org-super-links-quick-insert-inline-link ()
+  "Insert inline link regardless of variable `org-super-links-related-into-drawer' value."
   (interactive)
   ;; how to handle prefix here?
   (let ((org-super-links-related-into-drawer nil)
@@ -305,14 +320,18 @@ Where the backlink is placed is determined by the variable `org-super-links-back
     (org-indent-region beg (point))))
 
 (defun org-super-links-links-action (marker hooks)
+  "Go to MARKER, run HOOKS and store a link."
   (with-current-buffer (marker-buffer marker)
     (save-excursion
-      (goto-char (marker-position marker))
-      (run-hooks hooks)
-      (call-interactively 'org-store-link)
-      (pop org-stored-links))))
+      (save-restriction
+        (widen) ;; buffer could be narrowed
+        (goto-char (marker-position marker))
+        (run-hooks hooks)
+        (call-interactively #'org-store-link)
+        (pop org-stored-links)))))
 
 (defun org-super-links-link-builder (link)
+  "Format link description for LINK."
   (let* ((link-ref (car link))
 	 (pre-desc (cadr link))
 	 (description (org-super-links-default-description-formatter link-ref pre-desc)))
@@ -332,9 +351,11 @@ only used when converting a link."
 	 (target-formatted-link (org-super-links-link-builder target-link)))
     (with-current-buffer (marker-buffer target)
       (save-excursion
-	(goto-char (marker-position target))
-	(when (derived-mode-p 'org-mode)
-	  (org-super-links-insert-backlink (car source-formatted-link) (cdr source-formatted-link)))))
+        (save-restriction
+          (widen) ;; buffer could be narrowed
+          (goto-char (marker-position target))
+          (when (derived-mode-p 'org-mode)
+            (org-super-links-insert-backlink (car source-formatted-link) (cdr source-formatted-link))))))
     (unless no-forward
       (with-current-buffer (marker-buffer source)
 	(save-excursion
@@ -343,13 +364,14 @@ only used when converting a link."
 
 
 ;;;###autoload
-(defun org-super-links-convert-link-to-super (arg)
-  "Convert a normal org-mode link at `point' to super link.  If
-`org-super-links-related-into-drawer' is non-nil move the link into drawer.
+(defun org-super-links-convert-link-to-super (&optional arg)
+  "Convert a normal `org-mode' link at `point' to super link, ARG prefix.
+If variable `org-super-links-related-into-drawer' is non-nil move
+the link into drawer.
 
 When called interactively with a `C-u' prefix argument ignore
-`org-super-links-related-into-drawer' configuration and do not modify existing
-link."
+variable `org-super-links-related-into-drawer' configuration and
+do not modify existing link."
   (interactive "P")
   (let ((from-m (point-marker))
 	(target (save-window-excursion
@@ -357,7 +379,7 @@ link."
 		    (save-excursion
 		      (org-open-at-point)
 		      (point-marker))))))
-    (org-super-links--insert-link target arg)
+    (org-super-links--insert-link target (or arg (not org-super-links-related-into-drawer)))
     (goto-char (marker-position from-m)))
 
   (when (and (not arg) (org-super-links-related-into-drawer))
@@ -384,19 +406,19 @@ This works from either side, and deletes both sides of a link."
 
 ;;;###autoload
 (defun org-super-links-store-link (&optional GOTO KEYS)
-  "Store a point to the register for use in function `org-super-links-insert-link'.
+  "Store a point to register for use in function `org-super-links-insert-link'.
 This is primarily intended to be called before `org-capture', but
 could possibly even be used to replace `org-store-link' IF
-function `org-super-links-insert-link' is used to replace `org-insert-link'.  This
-has not been thoroughly tested outside of links to/form org files.
-GOTO and KEYS are unused."
+function `org-super-links-insert-link' is used to replace
+`org-insert-link'.  This has not been thoroughly tested outside
+of links to/form org files.  GOTO and KEYS are unused."
   (interactive "P")
   (ignore GOTO)
   (ignore KEYS)
   (save-excursion
     ;; this is a hack. if the point is at the first char of a heading
     ;; the marker is not updated as expected when text is inserted
-    ;; above the heading. for exapmle a capture template inserted
+    ;; above the heading. for example a capture template inserted
     ;; above. that results in the link being to the heading above the
     ;; expected heading.
     (goto-char (line-end-position))
@@ -404,10 +426,6 @@ GOTO and KEYS are unused."
       (set-marker c1 (point) (current-buffer))
       (set-register ?^ c1)
       (message "Link copied"))))
-
-;; not sure if this should be autoloaded or left to config?
-;;;###autoload
-(advice-add 'org-capture :before 'org-super-links-store-link)
 
 ;;;###autoload
 (defun org-super-links-insert-link ()
